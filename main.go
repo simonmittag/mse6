@@ -36,7 +36,7 @@ func Bootstrap(port int, waitSeconds float64) {
 	log.Info().Msgf("wait duration for slow requests seconds %v", waitDuration.Seconds())
 	log.Info().Msgf("mse6 starting http server on port %d", port)
 
-	http.HandleFunc("/mse6/getting", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("c", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"MSE6":"Hello from the billing endpoint"}`))
