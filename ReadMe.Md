@@ -26,6 +26,16 @@ mse6 is a http server implementing mock responses for testing of edge cases, suc
 go install github.com/simonmittag/mse6/cmd/mse6 && mse6
 ```
 
+## Usage
+```bash
+λ mse6 -help
+Usage of mse6:
+  -port int
+        the http port (default 8080)
+  -wait int
+        wait time for server to respond in seconds (default 3)
+```
+
 ## Contributions
 The mse6 team welcomes all [contributors](https://github.com/simonmittag/mse6/blob/master/CONTRIBUTING.md). Everyone interacting with the project's codebase, issue trackers, chat rooms and mailing lists
 is expected to follow the [code of conduct](https://github.com/simonmittag/mse6/blob/master/CODE_OF_CONDUCT.md)
