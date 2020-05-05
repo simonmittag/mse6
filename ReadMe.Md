@@ -1,6 +1,6 @@
 ![](mse6.png)
 
-mse6 is a test http server with configurable slow responses and other edge cases.
+mse6 is a http server implementing mock responses for testing of edge cases, such as slow writes.
 
 ## Features
 * Configurable HTTP/1.1 port
