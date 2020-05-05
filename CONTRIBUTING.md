@@ -10,14 +10,6 @@ We love your input! We want to make contributing to this project as easy and tra
 ## We Develop with Github
 We use github to host code, to track issues and feature requests, as well as accept pull requests.
 
-## We Use [CircleCi](https://circleci.com/gh/simonmittag/mse6), So All Code Changes Happen Through Pull Requests
-Pull requests are the best way to propose changes to the codebase (we use [CircleCi](https://circleci.com/gh/simonmittag/mse6). We actively welcome your pull requests:
-
-1. Fork the repo and create your branch from `master`.
-2. If you've added code that should be tested, add tests.
-3. Ensure the test suite passes.
-4. Issue that pull request!
-
 ## Any contributions you make will be under the Apache Software License
 In short, when you submit code changes, your submissions are understood to be under the same [Apache License](https://github.com/simonmittag/jabba/blob/master/LICENSE). Feel free to contact one of the project maintainers if that's a concern.
 
