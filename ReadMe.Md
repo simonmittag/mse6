@@ -13,7 +13,7 @@ mse6 is a http server implementing mock responses for testing of edge cases, suc
 * Configurable wait time for slow responses
 
 ## Routes
-```bash
+```
 /mse6/getting 
 /mse6/posting
 /mse6/slowheader
@@ -27,7 +27,7 @@ go install github.com/simonmittag/mse6/cmd/mse6 && mse6
 ```
 
 ## Usage
-```bash
+```
 λ mse6 -help
 Usage of mse6:
   -port int
