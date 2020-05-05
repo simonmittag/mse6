@@ -14,12 +14,14 @@ func get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"mse6":"Hello from the getting endpoint"}`))
+	log.Info().Msg("served /get request")
 }
 
 func post(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"mse6":"Hello from the posting endpoint"}`))
+	log.Info().Msg("served /post request")
 }
 
 func slowbody(w http.ResponseWriter, r *http.Request) {
@@ -41,6 +43,8 @@ func slowbody(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(waitDuration / 2)
 	bufrw.WriteString(`,{"mse6":"and some more data from the slowbody endpoint"}]`)
 	bufrw.Flush()
+
+	log.Info().Msg("served /slowbody request")
 }
 
 func slowheader(w http.ResponseWriter, r *http.Request) {
@@ -48,12 +52,16 @@ func slowheader(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"mse6":"Hello from the slowheader endpoint"}`))
+
+	log.Info().Msg("served /slowheader request")
 }
 
 func gzipf(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Encoding", "gzip")
 	w.WriteHeader(200)
 	w.Write(gzipenc([]byte(`{"mse6":"Hello from the gzip endpoint"}`)))
+
+	log.Info().Msg("served /gzip request")
 }
 
 func Bootstrap(port int, waitSeconds float64) {

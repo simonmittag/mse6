@@ -15,15 +15,15 @@ var zipPool = sync.Pool{
 }
 
 func gzipenc(input []byte) []byte {
-wrt, _ := zipPool.Get().(*gzip.Writer)
-buf := &bytes.Buffer{}
-wrt.Reset(buf)
+	wrt, _ := zipPool.Get().(*gzip.Writer)
+	buf := &bytes.Buffer{}
+	wrt.Reset(buf)
 
-_, _ = wrt.Write(input)
-_ = wrt.Close()
-defer zipPool.Put(wrt)
+	_, _ = wrt.Write(input)
+	_ = wrt.Close()
+	defer zipPool.Put(wrt)
 
-enc := buf.Bytes()
-log.Trace().Msgf("zipped byte buffer size %d", len(enc))
-return enc
+	enc := buf.Bytes()
+	log.Trace().Msgf("zipped byte buffer size %d", len(enc))
+	return enc
 }
