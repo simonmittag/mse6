@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	mse6.BootStrap(8080, 3)
+	mse6.Bootstrap(8080, 3)
 }

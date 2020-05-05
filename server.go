@@ -27,7 +27,7 @@ func Bootstrap(port int, waitSeconds float64) {
 	http.HandleFunc("/mse6/getting", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
-		w.Write([]byte(`{"MSE6":"Hello from the billing endpoint"}`))
+		w.Write([]byte(`{"MSE6":"Hello from the getting endpoint"}`))
 	})
 
 	http.HandleFunc("/mse6/posting", func(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +48,7 @@ func Bootstrap(port int, waitSeconds float64) {
 		bufrw.WriteString(`[{"mse6":"Hello from the slowbody endpoint"}`)
 		bufrw.Flush()
 		time.Sleep(waitDuration/2)
-		bufrw.WriteString(`,{"mse6":"and some more data from the mse6/slowbody endpoint"}]`)
+		bufrw.WriteString(`,{"mse6":"and some more data from the slowbody endpoint"}]`)
 		bufrw.Flush()
 	})
 
@@ -62,7 +62,7 @@ func Bootstrap(port int, waitSeconds float64) {
 	http.HandleFunc("/mse6/gzip", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "gzip")
 		w.WriteHeader(200)
-		w.Write(gzipenc([]byte(`{"MSE6":"Hello from the mse6/gzip endpoint"}`)))
+		w.Write(gzipenc([]byte(`{"MSE6":"Hello from the gzip endpoint"}`)))
 	})
 
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
