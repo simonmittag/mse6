@@ -17,26 +17,14 @@ var zipPool = sync.Pool{
 	},
 }
 
-func gzipenc(input []byte) []byte {
-	wrt, _ := zipPool.Get().(*gzip.Writer)
-	buf := &bytes.Buffer{}
-	wrt.Reset(buf)
 
-	_, _ = wrt.Write(input)
-	_ = wrt.Close()
-	defer zipPool.Put(wrt)
-
-	enc := buf.Bytes()
-	log.Trace().Msgf("zipped byte buffer size %d", len(enc))
-	return enc
-}
 
 func Bootstrap(port int, waitSeconds float64) {
 	waitDuration := time.Second * time.Duration(waitSeconds)
 	log.Info().Msgf("wait duration for slow requests seconds %v", waitDuration.Seconds())
 	log.Info().Msgf("mse6 starting http server on port %d", port)
 
-	http.HandleFunc("c", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/mse6/getting", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"MSE6":"Hello from the billing endpoint"}`))
