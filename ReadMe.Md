@@ -16,8 +16,8 @@ mse6 is a http server implementing mock responses for testing of edge cases, suc
 
 ## Routes
 ```
-/mse6/getting 
-/mse6/posting
+/mse6/get
+/mse6/post
 /mse6/slowheader
 /mse6/slowbody
 /mse6/gzip
