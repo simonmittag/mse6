@@ -1,4 +1,4 @@
-![](jabba.png)
+![](mse6.png)
 
 mse6 is a test http server with configurable slow responses and other edge cases.
 
