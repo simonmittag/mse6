@@ -4,7 +4,15 @@ import (
 	"bytes"
 	"compress/gzip"
 	"github.com/rs/zerolog/log"
+	"sync"
 )
+
+var zipPool = sync.Pool{
+	New: func() interface{} {
+		var buf bytes.Buffer
+		return gzip.NewWriter(&buf)
+	},
+}
 
 func gzipenc(input []byte) []byte {
 wrt, _ := zipPool.Get().(*gzip.Writer)
