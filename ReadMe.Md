@@ -23,7 +23,7 @@ mse6 is a http server implementing mock responses for testing of edge cases, suc
 
 ## Up and running
 ```bash
-go install github.com/simonmittag/mse6/cmd/mse6 && mse6
+go get github.com/simonmittag/mse6 && go install github.com/simonmittag/mse6/cmd/mse6 && mse6
 ```
 
 ## Usage
