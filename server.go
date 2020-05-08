@@ -8,23 +8,26 @@ import (
 )
 
 var waitDuration time.Duration
-var version = "v0.1.2"
+var Version = "v0.1.2"
 
 func get(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
-	w.Write([]byte(`{"mse6":"Hello from the getting endpoint"}`))
+	w.Write([]byte(`{"mse6":"Hello from the get endpoint"}`))
 	log.Info().Msg("served /get request")
 }
 
 func post(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
-	w.Write([]byte(`{"mse6":"Hello from the posting endpoint"}`))
+	w.Write([]byte(`{"mse6":"Hello from the post endpoint"}`))
 	log.Info().Msg("served /post request")
 }
 
 func slowbody(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	//we must have this, else golang sets it to 'chunked' after 2nd write
 	w.Header().Set("Transfer-Encoding", "identity")
@@ -49,6 +52,7 @@ func slowbody(w http.ResponseWriter, r *http.Request) {
 
 func slowheader(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(waitDuration)
+	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"mse6":"Hello from the slowheader endpoint"}`))
@@ -57,6 +61,7 @@ func slowheader(w http.ResponseWriter, r *http.Request) {
 }
 
 func gzipf(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "gzip")
 	w.WriteHeader(200)
 	w.Write(gzipenc([]byte(`{"mse6":"Hello from the gzip endpoint"}`)))
@@ -67,7 +72,7 @@ func gzipf(w http.ResponseWriter, r *http.Request) {
 func Bootstrap(port int, waitSeconds float64) {
 	waitDuration = time.Second * time.Duration(waitSeconds)
 	log.Info().Msgf("wait duration for slow requests seconds %v", waitDuration.Seconds())
-	log.Info().Msgf("mse6 starting http server %s on port %d", version, port)
+	log.Info().Msgf("mse6 %s starting http server on port %d", Version, port)
 
 	http.HandleFunc("/mse6/get", get)
 	http.HandleFunc("/mse6/post", post)

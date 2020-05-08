@@ -25,10 +25,10 @@ func main() {
 func selftest(port int) {
 	_, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err == nil {
-		log.Info().Msgf("mse6 self test pass. port %d available", port)
+		log.Info().Msgf("mse6 %s self test pass. port %d available", mse6.Version, port)
 		os.Exit(0)
 	} else {
-		log.Error().Msgf("mse6 self test fail. port %d unavailable", port)
+		log.Error().Msgf("mse6 %s self test fail. port %d unavailable", mse6.Version, port)
 		os.Exit(1)
 	}
 }
