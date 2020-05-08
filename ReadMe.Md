@@ -34,6 +34,8 @@ go get github.com/simonmittag/mse6 && go install github.com/simonmittag/mse6/cmd
 Usage of mse6:
   -port int
         the http port (default 8080)
+  -test
+        server self test
   -wait int
         wait time for server to respond in seconds (default 3)
 ```
