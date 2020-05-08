@@ -8,7 +8,7 @@ import (
 )
 
 var waitDuration time.Duration
-var version = "v0.1.1"
+var version = "v0.1.2"
 
 func get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Encoding", "identity")
