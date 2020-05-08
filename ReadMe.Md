@@ -26,13 +26,16 @@ mse6 is a http server implementing mock responses for testing of edge cases, suc
 ## Up and running
 ### Osx
 ```
-brew tap simonmittag/homebrew-mse6
-brew install mse6
+brew tap simonmittag/homebrew-mse6 &&
+brew install mse6 &&
+mse6
 ```
 
 ### Golang
 ```bash
-go get github.com/simonmittag/mse6 && go install github.com/simonmittag/mse6/cmd/mse6 && mse6
+go get github.com/simonmittag/mse6 && 
+go install github.com/simonmittag/mse6/cmd/mse6 && 
+mse6
 ```
 
 ## Usage
