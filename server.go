@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
@@ -17,6 +18,11 @@ func get(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 	w.Write([]byte(`{"mse6":"Hello from the get endpoint"}`))
 	log.Info().Msg("served /get request")
+}
+
+func die(w http.ResponseWriter, r *http.Request) {
+	log.Info().Msg("serving /die request, process exiting with -1")
+	os.Exit(-1)
 }
 
 func post(w http.ResponseWriter, r *http.Request) {
@@ -131,6 +137,7 @@ func Bootstrap(port int, waitSeconds float64) {
 	log.Info().Msgf("wait duration for slow requests seconds %v", waitDuration.Seconds())
 	log.Info().Msgf("mse6 %s starting http server on port %d", Version, port)
 
+	http.HandleFunc("/mse6/die", die)
 	http.HandleFunc("/mse6/get", get)
 	http.HandleFunc("/mse6/post", post)
 	http.HandleFunc("/mse6/slowbody", slowbody)
