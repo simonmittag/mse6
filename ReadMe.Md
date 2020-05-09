@@ -15,6 +15,9 @@ mse6 is a http server implementing mock responses for testing of edge cases, suc
 * Configurable wait time for slow responses
 
 ## Routes
+### /mse6/die
+kills the server process without sending a response
+
 ### /mse6/get
 standard json response with status code 200
 
