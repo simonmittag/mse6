@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 var waitDuration time.Duration
-var Version = "v0.1.2"
+var Version = "v0.1.3"
 
 func get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "mse6 "+Version)
@@ -103,6 +104,21 @@ func send404(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msg("served /send404 request")
 }
 
+func send(w http.ResponseWriter, r *http.Request) {
+	code := 0
+	if len(r.URL.Query()["code"]) > 0 {
+		code, _ = strconv.Atoi(r.URL.Query()["code"][0])
+	} else {
+		code = 200
+	}
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.WriteHeader(code)
+	w.Write([]byte(fmt.Sprintf(`{"mse6":"%d"}`, code)))
+
+	log.Info().Msgf("served /send request with code %d", code)
+}
+
 func Bootstrap(port int, waitSeconds float64) {
 	waitDuration = time.Second * time.Duration(waitSeconds)
 	log.Info().Msgf("wait duration for slow requests seconds %v", waitDuration.Seconds())
@@ -113,6 +129,7 @@ func Bootstrap(port int, waitSeconds float64) {
 	http.HandleFunc("/mse6/slowbody", slowbody)
 	http.HandleFunc("/mse6/slowheader", slowheader)
 	http.HandleFunc("/mse6/badcontentlength", badcontentlength)
+	http.HandleFunc("/mse6/send", send)
 	http.HandleFunc("/mse6/gzip", gzipf)
 	http.HandleFunc("/", send404)
 
