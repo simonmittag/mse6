@@ -192,3 +192,29 @@ func TestGzipResponds(t *testing.T) {
 		t.Errorf("invalid response, wanted mse6 json, got %v", sbody)
 	}
 }
+
+func TestSend404Responds(t *testing.T) {
+	//TODO: will not test the delay only the response because of httptest?
+	waitDuration = 3
+	srv := httptest.NewServer(http.HandlerFunc(send404))
+	defer srv.Close()
+
+	res, err := http.Get(srv.URL)
+	if err != nil {
+		t.Errorf("server did not return ok cause %v", err)
+	}
+
+	body, err2 := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err2 != nil {
+		t.Errorf("body parsing did not return ok cause %v", err2)
+	}
+	sbody := string(body)
+	if !strings.Contains(sbody, "404") {
+		t.Errorf("invalid response, wanted mse6 json, got %v", sbody)
+	}
+
+	if res.StatusCode != 404 {
+		t.Errorf("response status code want 200, got %v", res.StatusCode)
+	}
+}
