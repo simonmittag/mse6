@@ -194,8 +194,6 @@ func TestGzipResponds(t *testing.T) {
 }
 
 func TestSend404Responds(t *testing.T) {
-	//TODO: will not test the delay only the response because of httptest?
-	waitDuration = 3
 	srv := httptest.NewServer(http.HandlerFunc(send404))
 	defer srv.Close()
 
@@ -216,5 +214,19 @@ func TestSend404Responds(t *testing.T) {
 
 	if res.StatusCode != 404 {
 		t.Errorf("response status code want 200, got %v", res.StatusCode)
+	}
+}
+
+func TestSendResponds(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(send))
+	defer srv.Close()
+
+	res, err := http.Get(srv.URL + "?code=201")
+	if err != nil {
+		t.Errorf("server did not return ok cause %v", err)
+	}
+
+	if res.StatusCode != 201 {
+		t.Errorf("response status code want 201, got %v", res.StatusCode)
 	}
 }

@@ -108,6 +108,9 @@ func send(w http.ResponseWriter, r *http.Request) {
 	code := 0
 	if len(r.URL.Query()["code"]) > 0 {
 		code, _ = strconv.Atoi(r.URL.Query()["code"][0])
+		if !(code > 99 && code < 1000) {
+			code = 200
+		}
 	} else {
 		code = 200
 	}
