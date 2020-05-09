@@ -15,15 +15,26 @@ mse6 is a http server implementing mock responses for testing of edge cases, suc
 * Configurable wait time for slow responses
 
 ## Routes
-```
-/mse6/get
-/mse6/post
-/mse6/slowheader
-/mse6/slowbody
-/mse6/badcontentlength
-/mse6/send?code=nnn
-/mse6/gzip
-```
+### /mse6/get
+standard json response with status code 200
+
+### /mse6/post
+standard json response with status code 200
+
+### /mse6/slowheader
+sends headers but only after waiting for 3 seconds. Configure with -wait on cli
+
+### /mse6/slowbody
+sends body after initial lag, then sends some more body without chunking. Configure with -wait on cli
+
+### /mse6/badcontentlength
+sends invalid content length header, too large for response
+
+### /mse6/send?code=nnn
+sends arbitrary response code between 100 and 999
+
+### /mse6/gzip
+sends a gzipped response with proper content encoding
 
 ## Up and running
 ### Osx
