@@ -20,11 +20,15 @@ func get(w http.ResponseWriter, r *http.Request) {
 }
 
 func post(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Server", "mse6 "+Version)
-	w.Header().Set("Content-Encoding", "identity")
-	w.WriteHeader(200)
-	w.Write([]byte(`{"mse6":"Hello from the post endpoint"}`))
-	log.Info().Msg("served /post request")
+	if r.Method == "POST" {
+		w.Header().Set("Server", "mse6 "+Version)
+		w.Header().Set("Content-Encoding", "identity")
+		w.WriteHeader(200)
+		w.Write([]byte(`{"mse6":"Hello from the post endpoint"}`))
+		log.Info().Msg("served /post request")
+	} else {
+		send404(w, r)
+	}
 }
 
 func slowbody(w http.ResponseWriter, r *http.Request) {
