@@ -20,6 +20,8 @@ mse6 is a http server implementing mock responses for testing of edge cases, suc
 /mse6/post
 /mse6/slowheader
 /mse6/slowbody
+/mse6/badcontentlength
+/mse6/send?code=nnn
 /mse6/gzip
 ```
 
