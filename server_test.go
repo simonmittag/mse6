@@ -18,17 +18,17 @@ func TestGetResponds(t *testing.T) {
 	defer srv.Close()
 
 	res, err := http.Get(srv.URL)
-	if err!=nil {
+	if err != nil {
 		t.Errorf("server did not return ok cause %v", err)
 	}
 
 	body, err2 := ioutil.ReadAll(res.Body)
 	res.Body.Close()
-	if err2!=nil {
+	if err2 != nil {
 		t.Errorf("body parsing did not return ok cause %v", err2)
 	}
 
-	if res.StatusCode!=200 {
+	if res.StatusCode != 200 {
 		t.Errorf("response status code want 200, got %v", res.StatusCode)
 	}
 
@@ -49,17 +49,17 @@ func TestPostResponds(t *testing.T) {
 
 	rBody := []byte(`{"hello":"world"}`)
 	res, err := http.Post(srv.URL, "application/json", bytes.NewBuffer(rBody))
-	if err!=nil {
+	if err != nil {
 		t.Errorf("server did not return ok cause %v", err)
 	}
 
 	body, err2 := ioutil.ReadAll(res.Body)
 	res.Body.Close()
-	if err2!=nil {
+	if err2 != nil {
 		t.Errorf("body parsing did not return ok cause %v", err2)
 	}
 
-	if res.StatusCode!=200 {
+	if res.StatusCode != 200 {
 		t.Errorf("response status code want 200, got %v", res.StatusCode)
 	}
 
@@ -81,17 +81,17 @@ func TestSlowBodyResponds(t *testing.T) {
 	defer srv.Close()
 
 	res, err := http.Get(srv.URL)
-	if err!=nil {
+	if err != nil {
 		t.Errorf("server did not return ok cause %v", err)
 	}
 
 	body, err2 := ioutil.ReadAll(res.Body)
 	res.Body.Close()
-	if err2!=nil {
+	if err2 != nil {
 		t.Errorf("body parsing did not return ok cause %v", err2)
 	}
 
-	if res.StatusCode!=200 {
+	if res.StatusCode != 200 {
 		t.Errorf("response status code want 200, got %v", res.StatusCode)
 	}
 
@@ -106,6 +106,32 @@ func TestSlowBodyResponds(t *testing.T) {
 	}
 }
 
+func TestBadContentLengthResponds(t *testing.T) {
+	waitDuration = 3
+	srv := httptest.NewServer(http.HandlerFunc(badcontentlength))
+	defer srv.Close()
+
+	res, err := http.Get(srv.URL)
+	if err != nil {
+		t.Errorf("server did not return ok cause %v", err)
+	}
+
+	_, err2 := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err2 == nil {
+		t.Errorf("body parsing did return nil error, want unexecpted EOF")
+	}
+
+	if res.StatusCode != 200 {
+		t.Errorf("response status code want 200, got %v", res.StatusCode)
+	}
+
+	cl := res.Header["Content-Length"][0]
+	if cl != "2048" {
+		t.Errorf("response Content Length should be 2048 got %v", cl)
+	}
+}
+
 func TestSlowHeaderResponds(t *testing.T) {
 	//TODO: will not test the delay only the response because of httptest?
 	waitDuration = 3
@@ -113,17 +139,17 @@ func TestSlowHeaderResponds(t *testing.T) {
 	defer srv.Close()
 
 	res, err := http.Get(srv.URL)
-	if err!=nil {
+	if err != nil {
 		t.Errorf("server did not return ok cause %v", err)
 	}
 
 	body, err2 := ioutil.ReadAll(res.Body)
 	res.Body.Close()
-	if err2!=nil {
+	if err2 != nil {
 		t.Errorf("body parsing did not return ok cause %v", err2)
 	}
 
-	if res.StatusCode!=200 {
+	if res.StatusCode != 200 {
 		t.Errorf("response status code want 200, got %v", res.StatusCode)
 	}
 
@@ -145,17 +171,17 @@ func TestGzipResponds(t *testing.T) {
 	defer srv.Close()
 
 	res, err := http.Get(srv.URL)
-	if err!=nil {
+	if err != nil {
 		t.Errorf("server did not return ok cause %v", err)
 	}
 
 	body, err2 := ioutil.ReadAll(res.Body)
 	res.Body.Close()
-	if err2!=nil {
+	if err2 != nil {
 		t.Errorf("body parsing did not return ok cause %v", err2)
 	}
 
-	if res.StatusCode!=200 {
+	if res.StatusCode != 200 {
 		t.Errorf("response status code want 200, got %v", res.StatusCode)
 	}
 
