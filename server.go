@@ -50,6 +50,31 @@ func slowbody(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msg("served /slowbody request")
 }
 
+func badcontentlength(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.Header().Set("Content-Length", "2048")
+	//we must have this, else golang sets it to 'chunked' after 2nd write
+	w.Header().Set("Transfer-Encoding", "identity")
+	w.WriteHeader(200)
+
+	hj, _ := w.(http.Hijacker)
+	conn, bufrw, _ := hj.Hijack()
+	defer conn.Close()
+
+	//sleep half the wait duration and send a few bytes
+	time.Sleep(waitDuration / 2)
+	bufrw.WriteString(`[{"mse6":"Hello from the badcontentlength endpoint"}`)
+	bufrw.Flush()
+
+	//sleep some more and send the rest
+	time.Sleep(waitDuration / 2)
+	bufrw.WriteString(`,{"mse6":"and some more data from the badcontentlength endpoint"}]`)
+	bufrw.Flush()
+
+	log.Info().Msg("served /badcontentlength request")
+}
+
 func slowheader(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(waitDuration)
 	w.Header().Set("Server", "mse6 "+Version)
@@ -69,6 +94,15 @@ func gzipf(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msg("served /gzip request")
 }
 
+func send404(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.WriteHeader(404)
+	w.Write([]byte(`{"mse6":"404"}`))
+
+	log.Info().Msg("served /send404 request")
+}
+
 func Bootstrap(port int, waitSeconds float64) {
 	waitDuration = time.Second * time.Duration(waitSeconds)
 	log.Info().Msgf("wait duration for slow requests seconds %v", waitDuration.Seconds())
@@ -78,7 +112,9 @@ func Bootstrap(port int, waitSeconds float64) {
 	http.HandleFunc("/mse6/post", post)
 	http.HandleFunc("/mse6/slowbody", slowbody)
 	http.HandleFunc("/mse6/slowheader", slowheader)
+	http.HandleFunc("/mse6/badcontentlength", badcontentlength)
 	http.HandleFunc("/mse6/gzip", gzipf)
+	http.HandleFunc("/", send404)
 
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
