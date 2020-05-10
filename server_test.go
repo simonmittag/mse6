@@ -193,6 +193,26 @@ func TestGzipResponds(t *testing.T) {
 	}
 }
 
+func TestBadGzipResponds(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(badgzipf))
+	defer srv.Close()
+
+	res, err := http.Get(srv.URL)
+	if err != nil {
+		t.Errorf("server did not return ok cause %v", err)
+	}
+
+	_, err2 := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if !strings.Contains(err2.Error(), "gzip: invalid header") {
+		t.Errorf("body parsing should fail due to invalid gzip header, does not: %v", err2)
+	}
+
+	if res.StatusCode != 200 {
+		t.Errorf("response status code want 200, got %v", res.StatusCode)
+	}
+}
+
 func TestSend404Responds(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(send404))
 	defer srv.Close()
