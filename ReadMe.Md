@@ -10,9 +10,32 @@ mse6 sends mock HTTP1.1 responses to test edge cases in user agents, such as bad
 [![Go Version](https://img.shields.io/github/go-mod/go-version/simonmittag/jabba)](https://img.shields.io/github/go-mod/go-version/simonmittag/jabba)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-## Features
-* Configurable HTTP/1.1 port
-* Configurable wait time for slow responses
+## Up and running
+### Osx
+```
+brew tap simonmittag/cli &&
+brew install mse6 &&
+mse6
+```
+
+### Golang
+```bash
+go get github.com/simonmittag/mse6 && 
+go install github.com/simonmittag/mse6/cmd/mse6 && 
+mse6
+```
+
+## Usage
+```
+λ mse6 -h
+  Usage of mse6:
+    -p int
+      	the http port (default 8081)
+    -t	server self test
+    -v	print the server version
+    -w int
+      	wait time for server to respond in seconds (default 3)
+```
 
 ## Routes
 `GET /mse6/die`
@@ -43,33 +66,6 @@ Sends a gzipped response with proper content encoding
 
 `GET /mse6/badgzip`
 Sends a response gzip content encoding header and garbled binary
-
-## Up and running
-### Osx
-```
-brew tap simonmittag/cli &&
-brew install mse6 &&
-mse6
-```
-
-### Golang
-```bash
-go get github.com/simonmittag/mse6 && 
-go install github.com/simonmittag/mse6/cmd/mse6 && 
-mse6
-```
-
-## Usage
-```
-λ mse6 -h
-  Usage of mse6:
-    -p int
-      	the http port (default 8081)
-    -t	server self test
-    -v	print the server version
-    -w int
-      	wait time for server to respond in seconds (default 3)
-```
 
 ## Contributions
 The mse6 team welcomes all [contributors](https://github.com/simonmittag/mse6/blob/master/CONTRIBUTING.md). Everyone interacting with the project's codebase, issue trackers, chat rooms and mailing lists
