@@ -105,6 +105,18 @@ func gzipf(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msg("served /gzip request")
 }
 
+func badgzipf(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "gzip")
+	w.WriteHeader(200)
+	gzipBytes := gzipenc([]byte(`{"mse6":"Hello from the gzip endpoint"}`))
+	badBytes := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0}
+	copy(gzipBytes, badBytes)
+	w.Write(gzipBytes)
+
+	log.Info().Msg("served /badgzip request")
+}
+
 func send404(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
@@ -145,6 +157,7 @@ func Bootstrap(port int, waitSeconds float64) {
 	http.HandleFunc("/mse6/badcontentlength", badcontentlength)
 	http.HandleFunc("/mse6/send", send)
 	http.HandleFunc("/mse6/gzip", gzipf)
+	http.HandleFunc("/mse6/badgzip", badgzipf)
 	http.HandleFunc("/", send404)
 
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)

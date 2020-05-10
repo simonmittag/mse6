@@ -39,10 +39,13 @@ sends arbitrary response code between 100 and 999
 ### /mse6/gzip
 sends a gzipped response with proper content encoding
 
+### /mse6/badgzip
+sends a response gzip content encoding header and garbled binary
+
 ## Up and running
 ### Osx
 ```
-brew tap simonmittag/homebrew-mse6 &&
+brew tap simonmittag/cli &&
 brew install mse6 &&
 mse6
 ```
