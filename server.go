@@ -38,6 +38,8 @@ func post(w http.ResponseWriter, r *http.Request) {
 }
 
 func slowbody(w http.ResponseWriter, r *http.Request) {
+	wd := parseWaitDuration(r)
+
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	//we must have this, else golang sets it to 'chunked' after 2nd write
@@ -49,16 +51,29 @@ func slowbody(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	//sleep half the wait duration and send a few bytes
-	time.Sleep(waitDuration / 2)
+	time.Sleep(wd / 2)
 	bufrw.WriteString(`[{"mse6":"Hello from the slowbody endpoint"}`)
 	bufrw.Flush()
 
 	//sleep some more and send the rest
-	time.Sleep(waitDuration / 2)
-	bufrw.WriteString(`,{"mse6":"and some more data from the slowbody endpoint"}]`)
+	time.Sleep(wd / 2)
+	bufrw.WriteString(fmt.Sprintf(`,{"mse6":"and some more data from the slowbody endpoint", "waitSeconds":"%d"}]`, int(wd.Seconds())))
 	bufrw.Flush()
 
-	log.Info().Msg("served /slowbody request")
+	log.Info().Msgf("served /slowbody request in %d seconds", int(wd.Seconds()))
+}
+
+func parseWaitDuration(r *http.Request) time.Duration {
+	var wd time.Duration = waitDuration
+	if len(r.URL.Query()["wait"]) > 0 {
+		ws, _ := strconv.Atoi(r.URL.Query()["wait"][0])
+		if ws > 0 {
+			wd = time.Duration(time.Duration(ws) * time.Second)
+		} else {
+			log.Warn().Msgf("unable to parse wait parameter, using default %d seconds", int(waitDuration.Seconds()))
+		}
+	}
+	return wd
 }
 
 func badcontentlength(w http.ResponseWriter, r *http.Request) {
@@ -87,13 +102,14 @@ func badcontentlength(w http.ResponseWriter, r *http.Request) {
 }
 
 func slowheader(w http.ResponseWriter, r *http.Request) {
-	time.Sleep(waitDuration)
+	wd := parseWaitDuration(r)
+	time.Sleep(wd)
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
-	w.Write([]byte(`{"mse6":"Hello from the slowheader endpoint"}`))
+	w.Write([]byte(fmt.Sprintf(`{"mse6":"Hello from the slowheader endpoint", "waitSeconds":"%d"}`, int(wd.Seconds()))))
 
-	log.Info().Msg("served /slowheader request")
+	log.Info().Msgf("served /slowheader request in %v seconds", int(wd.Seconds()))
 }
 
 func gzipf(w http.ResponseWriter, r *http.Request) {
