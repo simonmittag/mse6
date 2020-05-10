@@ -15,32 +15,34 @@ mse6 is a http server implementing mock responses for testing of edge cases, suc
 * Configurable wait time for slow responses
 
 ## Routes
-### /mse6/die
-kills the server process without sending a response
+`GET /mse6/die`
+Kills the server process without sending a response
 
-### /mse6/get
-standard json response with status code 200
+`GET /mse6/get`
+Standard json response with status code 200
 
-### /mse6/post
-standard json response with status code 200
+`POST /mse6/post`
+Standard json response with status code 200
 
-### /mse6/slowheader
-sends headers but only after waiting for 3 seconds. Configure with -wait on cli
+`GET /mse6/slowheader?wait=n`
+Sends headers but only after waiting for n seconds. 
+Alternatively configure default with -w=n on cli
 
-### /mse6/slowbody
-sends body after initial lag, then sends some more body without chunking. Configure with -wait on cli
+`GET /mse6/slowbody?wait=n`
+Sends body after initial lag of n/2s, then sends remaining body without chunking after n/2s. 
+Alternatively configure default with -w=n on cli
 
-### /mse6/badcontentlength
-sends invalid content length header, too large for response
+`GET /mse6/badcontentlength`
+Sends invalid content length header, too large for response
 
-### /mse6/send?code=nnn
-sends arbitrary response code between 100 and 999
+`GET /mse6/send?code=nnn`
+Sends arbitrary response code between 100 and 999
 
-### /mse6/gzip
-sends a gzipped response with proper content encoding
+`GET /mse6/gzip`
+Sends a gzipped response with proper content encoding
 
-### /mse6/badgzip
-sends a response gzip content encoding header and garbled binary
+`GET /mse6/badgzip`
+Sends a response gzip content encoding header and garbled binary
 
 ## Up and running
 ### Osx
