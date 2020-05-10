@@ -59,14 +59,14 @@ mse6
 
 ## Usage
 ```
-λ mse6 -help
-Usage of mse6:
-  -port int
-        the http port (default 8080)
-  -test
-        server self test
-  -wait int
-        wait time for server to respond in seconds (default 3)
+λ mse6 -h
+  Usage of mse6:
+    -p int
+      	the http port (default 8081)
+    -t	server self test
+    -v	print the server version
+    -w int
+      	wait time for server to respond in seconds (default 3)
 ```
 
 ## Contributions
