@@ -1,6 +1,6 @@
 ![](mse6.png)
 
-mse6 is a http server implementing mock responses for testing of edge cases, such as slow writes.
+mse6 sends mock HTTP1.1 responses to test edge cases in user agents, such as bad headers or slow writes.
 
 [![Github Workflows](https://github.com/simonmittag/mse6/workflows/Go/badge.svg)](https://github.com/simonmittag/mse6/actions)
 [![Github Issues](https://img.shields.io/github/issues/simonmittag/mse6)](https://github.com/simonmittag/mse6/issues)
