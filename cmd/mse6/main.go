@@ -9,20 +9,44 @@ import (
 	"os"
 )
 
-func main() {
-	port := flag.Int("port", 8081, "the http port")
-	waitSecs := flag.Int("wait", 3, "wait time for server to respond in seconds")
-	testMode := flag.Bool("test", false, "server self test")
-	flag.Parse()
+type Mode uint8
 
-	if !*testMode {
+const (
+	Server Mode = 1 << iota
+	Test
+	Version
+)
+
+func main() {
+	mode := Server
+	port := flag.Int("p", 8081, "the http port")
+	waitSecs := flag.Int("w", 3, "wait time for server to respond in seconds")
+	tM := flag.Bool("t", false, "server self test")
+	vM := flag.Bool("v", false, "print the server version")
+	flag.Parse()
+	if *tM {
+		mode = Test
+	}
+	if *vM {
+		mode = Version
+	}
+
+	switch mode {
+	case Server:
 		mse6.Bootstrap(*port, float64(*waitSecs))
-	} else {
-		selftest(*port)
+	case Test:
+		printSelftest(*port)
+	case Version:
+		printVersion()
 	}
 }
 
-func selftest(port int) {
+func printVersion() {
+	fmt.Printf("mse6 %s\n", mse6.Version)
+	os.Exit(0)
+}
+
+func printSelftest(port int) {
 	_, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err == nil {
 		log.Info().Msgf("mse6 %s self test pass. port %d available", mse6.Version, port)
