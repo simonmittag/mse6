@@ -14,8 +14,7 @@ mse6 sends mock HTTP1.1 responses to test edge cases in user agents, such as bad
 ## Up and running
 ### Osx
 ```
-brew tap simonmittag/cli &&
-brew install mse6 &&
+brew install simonmittag/cli/mse6 &&
 mse6
 ```
 
