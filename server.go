@@ -10,7 +10,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.1.4"
+var Version = "v0.1.5"
 
 func get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "mse6 "+Version)
