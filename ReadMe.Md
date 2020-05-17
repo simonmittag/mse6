@@ -12,6 +12,12 @@ mse6 sends mock HTTP1.1 responses to test edge cases in user agents, such as bad
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Up and running
+### Docker
+```
+docker pull simonmittag/mse6 &&
+docker run -p8081:8081 simonmittag/mse6
+```
+
 ### Osx
 ```
 brew install simonmittag/cli/mse6 &&
