@@ -3,20 +3,17 @@
 mse6 sends mock HTTP1.1 responses to test edge cases in user agents, such as bad headers or slow writes.
 
 [![Circleci Builds](https://circleci.com/gh/simonmittag/mse6.svg?style=shield)](https://circleci.com/gh/simonmittag/mse6)
-[![Docker Build Status](https://img.shields.io/docker/cloud/build/simonmittag/mse6)](https://img.shields.io/docker/cloud/build/simonmittag/mse6)
-[![Github Workflows](https://github.com/simonmittag/mse6/workflows/Go/badge.svg)](https://github.com/simonmittag/mse6/actions)
 [![Github Issues](https://img.shields.io/github/issues/simonmittag/mse6)](https://github.com/simonmittag/mse6/issues)
 [![Github Activity](https://img.shields.io/github/commit-activity/m/simonmittag/mse6)](https://img.shields.io/github/commit-activity/m/simonmittag/mse6)  
-[![Codeclimate Maintainability](https://api.codeclimate.com/v1/badges/362bc41f687169d50e6b/maintainability)](https://codeclimate.com/github/simonmittag/mse6/maintainability)
-[![Codeclimate Test Coverage](https://api.codeclimate.com/v1/badges/362bc41f687169d50e6b/test_coverage)](https://codeclimate.com/github/simonmittag/mse6/test_coverage)
-[![Go Version](https://img.shields.io/github/go-mod/go-version/simonmittag/jabba)](https://img.shields.io/github/go-mod/go-version/simonmittag/jabba)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Docker Pulls](https://img.shields.io/docker/pulls/simonmittag/mse6)](https://img.shields.io/docker/pulls/simonmittag/mse6)
-[![Docker Image Size](https://img.shields.io/docker/image-size/simonmittag/mse6?sort=date)](https://img.shields.io/docker/image-size/simonmittag/mse6?sort=date)
-
 
 ## Up and running
 ### Docker
+
+[![Docker Build Status](https://img.shields.io/docker/cloud/build/simonmittag/mse6)](https://img.shields.io/docker/cloud/build/simonmittag/mse6)
+[![Docker Pulls](https://img.shields.io/docker/pulls/simonmittag/mse6)](https://img.shields.io/docker/pulls/simonmittag/mse6)
+[![Docker Image Size](https://img.shields.io/docker/image-size/simonmittag/mse6?sort=date)](https://img.shields.io/docker/image-size/simonmittag/mse6?sort=date)
+
 ```
 docker pull simonmittag/mse6 &&
 docker run -p8081:8081 simonmittag/mse6
@@ -29,6 +26,11 @@ mse6
 ```
 
 ### Golang
+[![Go Version](https://img.shields.io/github/go-mod/go-version/simonmittag/jabba)](https://img.shields.io/github/go-mod/go-version/simonmittag/jabba)
+[![Github Workflows](https://github.com/simonmittag/mse6/workflows/Go/badge.svg)](https://github.com/simonmittag/mse6/actions)
+[![Codeclimate Maintainability](https://api.codeclimate.com/v1/badges/362bc41f687169d50e6b/maintainability)](https://codeclimate.com/github/simonmittag/mse6/maintainability)
+[![Codeclimate Test Coverage](https://api.codeclimate.com/v1/badges/362bc41f687169d50e6b/test_coverage)](https://codeclimate.com/github/simonmittag/mse6/test_coverage)
+
 ```bash
 go get github.com/simonmittag/mse6 && 
 go install github.com/simonmittag/mse6/cmd/mse6 && 
