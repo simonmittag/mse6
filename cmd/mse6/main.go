@@ -19,13 +19,13 @@ const (
 	Version
 )
 
-var pattern = "/mse6"
+var pattern = "/mse6/"
 
 func main() {
 	initLogger()
 	mode := Server
 	port := flag.Int("p", 8081, "the http port")
-	u := flag.String("u", "/mse6", "the path prefix")
+	u := flag.String("u", "/mse6/", "the path prefix")
 	waitSecs := flag.Int("w", 3, "wait time for server to respond in seconds")
 	tM := flag.Bool("t", false, "server self test")
 	vM := flag.Bool("v", false, "print the server version")
