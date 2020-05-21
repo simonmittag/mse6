@@ -42,6 +42,8 @@ mse6
     -p int
       	the http port (default 8081)
     -t	server self test
+    -u string
+    	the path prefix (default "/mse6/")
     -v	print the server version
     -w int
       	wait time for server to respond in seconds (default 3)
