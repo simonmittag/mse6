@@ -10,18 +10,18 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.1.5"
+var Version = "v0.1.6"
 
 func get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"mse6":"Hello from the get endpoint"}`))
-	log.Info().Msg("served /get request")
+	log.Info().Msgf("served %v request", r.URL.Path)
 }
 
 func die(w http.ResponseWriter, r *http.Request) {
-	log.Info().Msg("serving /die request, process exiting with -1")
+	log.Info().Msgf("served %v request, process exiting with -1", r.URL.Path)
 	os.Exit(-1)
 }
 
@@ -31,7 +31,7 @@ func post(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the post endpoint"}`))
-		log.Info().Msg("served /post request")
+		log.Info().Msgf("served %v request", r.URL.Path)
 	} else {
 		send404(w, r)
 	}
@@ -60,7 +60,7 @@ func slowbody(w http.ResponseWriter, r *http.Request) {
 	bufrw.WriteString(fmt.Sprintf(`,{"mse6":"and some more data from the slowbody endpoint", "waitSeconds":"%d"}]`, int(wd.Seconds())))
 	bufrw.Flush()
 
-	log.Info().Msgf("served /slowbody request in %d seconds", int(wd.Seconds()))
+	log.Info().Msgf("served %v request in %d seconds", r.URL.Path, int(wd.Seconds()))
 }
 
 func parseWaitDuration(r *http.Request) time.Duration {
@@ -98,7 +98,7 @@ func badcontentlength(w http.ResponseWriter, r *http.Request) {
 	bufrw.WriteString(`,{"mse6":"and some more data from the badcontentlength endpoint"}]`)
 	bufrw.Flush()
 
-	log.Info().Msg("served /badcontentlength request")
+	log.Info().Msgf("served %v request", r.URL.Path)
 }
 
 func slowheader(w http.ResponseWriter, r *http.Request) {
@@ -109,7 +109,7 @@ func slowheader(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 	w.Write([]byte(fmt.Sprintf(`{"mse6":"Hello from the slowheader endpoint", "waitSeconds":"%d"}`, int(wd.Seconds()))))
 
-	log.Info().Msgf("served /slowheader request in %v seconds", int(wd.Seconds()))
+	log.Info().Msgf("served %v request in %v seconds", r.URL.Path, int(wd.Seconds()))
 }
 
 func gzipf(w http.ResponseWriter, r *http.Request) {
@@ -118,7 +118,7 @@ func gzipf(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 	w.Write(gzipenc([]byte(`{"mse6":"Hello from the gzip endpoint"}`)))
 
-	log.Info().Msg("served /gzip request")
+	log.Info().Msgf("served %v request", r.URL.Path)
 }
 
 func badgzipf(w http.ResponseWriter, r *http.Request) {
@@ -130,7 +130,7 @@ func badgzipf(w http.ResponseWriter, r *http.Request) {
 	copy(gzipBytes, badBytes)
 	w.Write(gzipBytes)
 
-	log.Info().Msg("served /badgzip request")
+	log.Info().Msgf("served %v request", r.URL.Path)
 }
 
 func send404(w http.ResponseWriter, r *http.Request) {
@@ -139,7 +139,7 @@ func send404(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(404)
 	w.Write([]byte(`{"mse6":"404"}`))
 
-	log.Info().Msg("served /send404 request")
+	log.Info().Msgf("served %v request", r.URL.Path)
 }
 
 func send(w http.ResponseWriter, r *http.Request) {
@@ -157,23 +157,23 @@ func send(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(code)
 	w.Write([]byte(fmt.Sprintf(`{"mse6":"%d"}`, code)))
 
-	log.Info().Msgf("served /send request with code %d", code)
+	log.Info().Msgf("served %v request with code %d", r.URL.Path, code)
 }
 
-func Bootstrap(port int, waitSeconds float64) {
+func Bootstrap(port int, waitSeconds float64, prefix string) {
 	waitDuration = time.Second * time.Duration(waitSeconds)
 	log.Info().Msgf("wait duration for slow requests seconds %v", waitDuration.Seconds())
-	log.Info().Msgf("mse6 %s starting http server on port %d", Version, port)
+	log.Info().Msgf("mse6 %s starting http server on port %d with prefix '%s'", Version, port, prefix)
 
-	http.HandleFunc("/mse6/die", die)
-	http.HandleFunc("/mse6/get", get)
-	http.HandleFunc("/mse6/post", post)
-	http.HandleFunc("/mse6/slowbody", slowbody)
-	http.HandleFunc("/mse6/slowheader", slowheader)
-	http.HandleFunc("/mse6/badcontentlength", badcontentlength)
-	http.HandleFunc("/mse6/send", send)
-	http.HandleFunc("/mse6/gzip", gzipf)
-	http.HandleFunc("/mse6/badgzip", badgzipf)
+	http.HandleFunc(prefix+"die", die)
+	http.HandleFunc(prefix+"get", get)
+	http.HandleFunc(prefix+"post", post)
+	http.HandleFunc(prefix+"slowbody", slowbody)
+	http.HandleFunc(prefix+"slowheader", slowheader)
+	http.HandleFunc(prefix+"badcontentlength", badcontentlength)
+	http.HandleFunc(prefix+"send", send)
+	http.HandleFunc(prefix+"gzip", gzipf)
+	http.HandleFunc(prefix+"badgzip", badgzipf)
 	http.HandleFunc("/", send404)
 
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)

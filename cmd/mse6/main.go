@@ -19,14 +19,20 @@ const (
 	Version
 )
 
+var pattern = "/mse6"
+
 func main() {
 	initLogger()
 	mode := Server
 	port := flag.Int("p", 8081, "the http port")
+	u := flag.String("u", "/mse6", "the path prefix")
 	waitSecs := flag.Int("w", 3, "wait time for server to respond in seconds")
 	tM := flag.Bool("t", false, "server self test")
 	vM := flag.Bool("v", false, "print the server version")
 	flag.Parse()
+
+	pattern = parsePrefix(*u)
+
 	if *tM {
 		mode = Test
 	}
@@ -36,12 +42,28 @@ func main() {
 
 	switch mode {
 	case Server:
-		mse6.Bootstrap(*port, float64(*waitSecs))
+		mse6.Bootstrap(*port, float64(*waitSecs), pattern)
 	case Test:
 		printSelftest(*port)
 	case Version:
 		printVersion()
 	}
+}
+
+func parsePrefix(s string) string {
+	p := ""
+	if !strings.HasPrefix(s, "/") {
+		p = "/" + s
+	} else {
+		p = s
+	}
+	if !strings.HasSuffix(p, "/") {
+		p = p + "/"
+	}
+	if p == "" {
+		p = "/"
+	}
+	return p
 }
 
 func printVersion() {
