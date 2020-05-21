@@ -10,7 +10,7 @@ import (
 )
 
 func TestHttpClientSocketTimeout(t *testing.T) {
-	go Bootstrap(65534, 1)
+	go Bootstrap(65534, 1, "/mse6/")
 }
 
 func TestGetResponds(t *testing.T) {
