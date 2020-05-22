@@ -33,7 +33,7 @@ jobs:
             export CIRCLE_SHA="$CIRCLE_SHA1"
             export CIRCLE_BRANCH=`git rev-parse --abbrev-ref HEAD`
             ./cc-test-reporter before-build
-            go test -cover -coverprofile=c.out
+            go test -cover -coverprofile=c.out ./...
             go tool cover -html=c.out -o coverage.html
             ./cc-test-reporter after-build --coverage-input-type gocov -p "github.com/simonmittag/mse6"
             mv coverage.html /tmp/artifacts
@@ -44,7 +44,7 @@ jobs:
       - run:
           name: Test Summary for CircleCI
           command: |
-            gotestsum --junitfile /tmp/test-results/unit-tests.xml
+            gotestsum --junitfile /tmp/test-results/unit-tests.xml ./...
 
       - store_test_results:
           path: /tmp/test-results
