@@ -10,7 +10,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.1.6"
+var Version = "v0.1.7"
 
 func get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "mse6 "+Version)
@@ -144,6 +144,7 @@ func send404(w http.ResponseWriter, r *http.Request) {
 
 func send(w http.ResponseWriter, r *http.Request) {
 	code := 0
+	location := ""
 	if len(r.URL.Query()["code"]) > 0 {
 		code, _ = strconv.Atoi(r.URL.Query()["code"][0])
 		if !(code > 99 && code < 1000) {
@@ -152,12 +153,23 @@ func send(w http.ResponseWriter, r *http.Request) {
 	} else {
 		code = 200
 	}
+	if len(r.URL.Query()["location"]) > 0 {
+		location = r.URL.Query()["location"][0]
+	} else {
+		location = "http://localhost:8080/mse6/get"
+	}
+
+	redirect := " "
+	if code>=300 && code <= 303 {
+		w.Header().Set("Location", location)
+		redirect = "redirect "
+	}
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(code)
 	w.Write([]byte(fmt.Sprintf(`{"mse6":"%d"}`, code)))
 
-	log.Info().Msgf("served %v request with code %d", r.URL.Path, code)
+	log.Info().Msgf("served %v %vrequest with code %d", r.URL.Path, redirect, code)
 }
 
 func Bootstrap(port int, waitSeconds float64, prefix string) {
