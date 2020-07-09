@@ -153,8 +153,8 @@ func send(w http.ResponseWriter, r *http.Request) {
 	} else {
 		code = 200
 	}
-	if len(r.URL.Query()["location"]) > 0 {
-		location = r.URL.Query()["location"][0]
+	if len(r.URL.Query()["url"]) > 0 {
+		location = r.URL.Query()["url"][0]
 	} else {
 		location = "http://localhost:8080/mse6/get"
 	}
@@ -162,7 +162,7 @@ func send(w http.ResponseWriter, r *http.Request) {
 	redirect := ""
 	if code >= 300 && code <= 303 {
 		w.Header().Set("Location", location)
-		redirect = "redirect "
+		redirect = fmt.Sprintf("redirect to %s ", location)
 	}
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")

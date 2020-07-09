@@ -70,8 +70,9 @@ Alternatively configure default with -w=n on cli
 `GET /mse6/badcontentlength`
 Sends invalid content length header, too large for response
 
-`GET /mse6/send?code=nnn`
-Sends arbitrary response code between 100 and 999
+`GET /mse6/send?code=nnn&url=http%3A%2F%2Fwww.google.com`
+Sends arbitrary response code between 100 and 999. For redirects, you can supply a custom
+location parameter. Don't forget to URL encode your params.
 
 `GET /mse6/gzip`
 Sends a gzipped response with proper content encoding
