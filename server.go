@@ -159,8 +159,8 @@ func send(w http.ResponseWriter, r *http.Request) {
 		location = "http://localhost:8080/mse6/get"
 	}
 
-	redirect := " "
-	if code>=300 && code <= 303 {
+	redirect := ""
+	if code >= 300 && code <= 303 {
 		w.Header().Set("Location", location)
 		redirect = "redirect "
 	}
