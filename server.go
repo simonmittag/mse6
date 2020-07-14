@@ -10,13 +10,22 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.1.7"
+var Version = "v0.1.8"
+var Port int
 
 func get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"mse6":"Hello from the get endpoint"}`))
+	log.Info().Msgf("served %v request", r.URL.Path)
+}
+
+func redirected(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.WriteHeader(200)
+	w.Write([]byte(`{"mse6":"Hello from the redirected endpoint. if you're reading this and you didn't load this URL, chances are you've been redirected.'"}`))
 	log.Info().Msgf("served %v request", r.URL.Path)
 }
 
@@ -156,7 +165,7 @@ func send(w http.ResponseWriter, r *http.Request) {
 	if len(r.URL.Query()["url"]) > 0 {
 		location = r.URL.Query()["url"][0]
 	} else {
-		location = "http://localhost:8080/mse6/get"
+		location = fmt.Sprintf("http://localhost:%d/mse6/redirected", Port)
 	}
 
 	redirect := ""
@@ -167,7 +176,9 @@ func send(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(code)
-	w.Write([]byte(fmt.Sprintf(`{"mse6":"%d"}`, code)))
+	if code >= 200 {
+		w.Write([]byte(fmt.Sprintf(`{"mse6":"%d"}`, code)))
+	}
 
 	log.Info().Msgf("served %v %vrequest with code %d", r.URL.Path, redirect, code)
 }
@@ -179,6 +190,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string) {
 
 	http.HandleFunc(prefix+"die", die)
 	http.HandleFunc(prefix+"get", get)
+	http.HandleFunc(prefix+"redirected", redirected)
 	http.HandleFunc(prefix+"post", post)
 	http.HandleFunc(prefix+"slowbody", slowbody)
 	http.HandleFunc(prefix+"slowheader", slowheader)
@@ -188,6 +200,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string) {
 	http.HandleFunc(prefix+"badgzip", badgzipf)
 	http.HandleFunc("/", send404)
 
+	Port = port
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
 		panic(err.Error())
