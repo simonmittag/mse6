@@ -189,7 +189,10 @@ func send(w http.ResponseWriter, r *http.Request) {
 	if code >= 200 {
 		w.Write([]byte(fmt.Sprintf(`{"mse6":"%d"}`, code)))
 	} else {
-		w.Write([]byte("\n"))
+		//the headers are flushed at this point, it doesn't send more. you need to hijack the connection.
+		log.Info().Msgf("sending additional 200 header after %d for %v", code, r.URL.Path)
+		w.WriteHeader(200)
+		w.Write([]byte("\r\n\r\n"))
 	}
 
 	log.Info().Msgf("served %v %vrequest with code %d", r.URL.Path, redirect, code)
