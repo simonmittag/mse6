@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -163,10 +164,18 @@ func send(w http.ResponseWriter, r *http.Request) {
 	} else {
 		code = 200
 	}
+
+	host := ""
+	if strings.Contains(r.Host, ":") {
+		host = strings.Split(r.Host, ":")[0]
+	} else {
+		host = r.Host
+	}
+
 	if len(r.URL.Query()["url"]) > 0 {
 		location = r.URL.Query()["url"][0]
 	} else {
-		location = fmt.Sprintf("http://localhost:%d%sredirected", Port, Prefix)
+		location = fmt.Sprintf("http://%s:%d%sredirected", host, Port, Prefix)
 	}
 
 	redirect := ""
