@@ -188,6 +188,8 @@ func send(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(code)
 	if code >= 200 {
 		w.Write([]byte(fmt.Sprintf(`{"mse6":"%d"}`, code)))
+	} else {
+		w.Write([]byte("\n"))
 	}
 
 	log.Info().Msgf("served %v %vrequest with code %d", r.URL.Path, redirect, code)
