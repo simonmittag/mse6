@@ -12,6 +12,7 @@ import (
 var waitDuration time.Duration
 var Version = "v0.1.8"
 var Port int
+var Prefix string
 
 func get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "mse6 "+Version)
@@ -165,7 +166,7 @@ func send(w http.ResponseWriter, r *http.Request) {
 	if len(r.URL.Query()["url"]) > 0 {
 		location = r.URL.Query()["url"][0]
 	} else {
-		location = fmt.Sprintf("http://localhost:%d/mse6/redirected", Port)
+		location = fmt.Sprintf("http://localhost:%d%sredirected", Port, Prefix)
 	}
 
 	redirect := ""
@@ -186,7 +187,10 @@ func send(w http.ResponseWriter, r *http.Request) {
 func Bootstrap(port int, waitSeconds float64, prefix string) {
 	waitDuration = time.Second * time.Duration(waitSeconds)
 	log.Info().Msgf("wait duration for slow requests seconds %v", waitDuration.Seconds())
-	log.Info().Msgf("mse6 %s starting http server on port %d with prefix '%s'", Version, port, prefix)
+
+	Port = port
+	Prefix = prefix
+	log.Info().Msgf("mse6 %s starting http server on port %d with prefix '%s'", Version, Port, Prefix)
 
 	http.HandleFunc(prefix+"die", die)
 	http.HandleFunc(prefix+"get", get)
@@ -200,7 +204,6 @@ func Bootstrap(port int, waitSeconds float64, prefix string) {
 	http.HandleFunc(prefix+"badgzip", badgzipf)
 	http.HandleFunc("/", send404)
 
-	Port = port
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
 		panic(err.Error())
