@@ -42,7 +42,19 @@ func post(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the post endpoint"}`))
-		log.Info().Msgf("served %v request", r.URL.Path)
+		log.Info().Msgf("served %v post request", r.URL.Path)
+	} else {
+		send404(w, r)
+	}
+}
+
+func put(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "PUT" {
+		w.Header().Set("Server", "mse6 "+Version)
+		w.Header().Set("Content-Encoding", "identity")
+		w.WriteHeader(200)
+		w.Write([]byte(`{"mse6":"Hello from the put endpoint"}`))
+		log.Info().Msgf("served %v put request", r.URL.Path)
 	} else {
 		send404(w, r)
 	}
@@ -210,6 +222,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string) {
 	http.HandleFunc(prefix+"get", get)
 	http.HandleFunc(prefix+"redirected", redirected)
 	http.HandleFunc(prefix+"post", post)
+	http.HandleFunc(prefix+"put", put)
 	http.HandleFunc(prefix+"slowbody", slowbody)
 	http.HandleFunc(prefix+"slowheader", slowheader)
 	http.HandleFunc(prefix+"badcontentlength", badcontentlength)
