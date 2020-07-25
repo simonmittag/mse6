@@ -191,10 +191,13 @@ func send(w http.ResponseWriter, r *http.Request) {
 	}
 
 	redirect := ""
-	if code >= 300 && code <= 303 {
+
+	locHeader := map[int]int{300:300, 301:301, 302:302, 303:303, 305:305, 307:307, 308:308}
+	if _, ok := locHeader[code];ok {
 		w.Header().Set("Location", location)
 		redirect = fmt.Sprintf("redirect to %s ", location)
 	}
+
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(code)
