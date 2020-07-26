@@ -45,7 +45,7 @@ func post(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the post endpoint"}`))
-		log.Info().Msgf("served %v post request reading %d bytes from inbound put", r.URL.Path, len(body))
+		log.Info().Msgf("served %v post request,%sreading %d bytes from inbound post", r.URL.Path, expectContinue(r), len(body))
 	} else {
 		send404(w, r)
 	}
@@ -59,9 +59,18 @@ func put(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the put endpoint"}`))
-		log.Info().Msgf("served %v put request, reading %d bytes from inbound put", r.URL.Path, len(body))
+		log.Info().Msgf("served %v put request,%sreading %d bytes from inbound put", r.URL.Path, expectContinue(r), len(body))
 	} else {
 		send404(w, r)
+	}
+}
+
+func expectContinue(r *http.Request) string {
+	c100 := strings.ToLower(r.Header.Get("Expect"))
+	if c100 == "100-continue" {
+		return " incoming request with Expect: 100-continue "
+	} else {
+		return " "
 	}
 }
 
@@ -197,8 +206,8 @@ func send(w http.ResponseWriter, r *http.Request) {
 
 	redirect := ""
 
-	locHeader := map[int]int{300:300, 301:301, 302:302, 303:303, 305:305, 307:307, 308:308}
-	if _, ok := locHeader[code];ok {
+	locHeader := map[int]int{300: 300, 301: 301, 302: 302, 303: 303, 305: 305, 307: 307, 308: 308}
+	if _, ok := locHeader[code]; ok {
 		w.Header().Set("Location", location)
 		redirect = fmt.Sprintf("redirect to %s ", location)
 	}
@@ -208,11 +217,6 @@ func send(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(code)
 	if code >= 200 {
 		w.Write([]byte(fmt.Sprintf(`{"mse6":"%d"}`, code)))
-	} else {
-		//the headers are flushed at this point, it doesn't send more. you need to hijack the connection.
-		log.Info().Msgf("sending additional 200 header after %d for %v", code, r.URL.Path)
-		w.WriteHeader(200)
-		w.Write([]byte("\r\n\r\n"))
 	}
 
 	log.Info().Msgf("served %v %vrequest with code %d", r.URL.Path, redirect, code)
