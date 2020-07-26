@@ -3,6 +3,7 @@ package mse6
 import (
 	"fmt"
 	"github.com/rs/zerolog/log"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -37,24 +38,28 @@ func die(w http.ResponseWriter, r *http.Request) {
 }
 
 func post(w http.ResponseWriter, r *http.Request) {
+	body, _ := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
 	if r.Method == "POST" {
 		w.Header().Set("Server", "mse6 "+Version)
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the post endpoint"}`))
-		log.Info().Msgf("served %v post request", r.URL.Path)
+		log.Info().Msgf("served %v post request reading %d bytes from inbound put", r.URL.Path, len(body))
 	} else {
 		send404(w, r)
 	}
 }
 
 func put(w http.ResponseWriter, r *http.Request) {
+	body, _ := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
 	if r.Method == "PUT" {
 		w.Header().Set("Server", "mse6 "+Version)
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the put endpoint"}`))
-		log.Info().Msgf("served %v put request", r.URL.Path)
+		log.Info().Msgf("served %v put request, reading %d bytes from inbound put", r.URL.Path, len(body))
 	} else {
 		send404(w, r)
 	}
