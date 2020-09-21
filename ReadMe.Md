@@ -1,6 +1,6 @@
 ![](mse6.png)
 
-mse6 sends mock HTTP1.1 responses to test edge cases in user agents, such as bad headers or slow writes.
+mse6 is a mock server doing everything in it's power to get HTTP and TLS all wrong.
 
 [![Circleci Builds](https://circleci.com/gh/simonmittag/mse6.svg?style=shield)](https://circleci.com/gh/simonmittag/mse6)
 [![Docker Build Status](https://img.shields.io/docker/cloud/build/simonmittag/mse6)](https://hub.docker.com/r/simonmittag/mse6/builds)
