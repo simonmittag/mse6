@@ -27,6 +27,7 @@ func main() {
 	port := flag.Int("p", 8081, "the http port")
 	u := flag.String("u", "/mse6/", "the path prefix")
 	waitSecs := flag.Int("w", 3, "wait time for server to respond in seconds")
+	tlsMode := flag.Bool("s", false, "self signed tls mode")
 	tM := flag.Bool("t", false, "server self test")
 	vM := flag.Bool("v", false, "print the server version")
 	flag.Parse()
@@ -42,7 +43,7 @@ func main() {
 
 	switch mode {
 	case Server:
-		mse6.Bootstrap(*port, float64(*waitSecs), pattern)
+		mse6.Bootstrap(*port, float64(*waitSecs), pattern, *tlsMode)
 	case Test:
 		printSelftest(*port)
 	case Version:
