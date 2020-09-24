@@ -59,6 +59,9 @@ Standard json response with status code 200
 `POST /mse6/post`
 Standard json response with status code 200
 
+`GET /mse6/echoheader`
+echoes all request headers sent on response body for testing
+
 `GET /mse6/slowheader?wait=n`
 Sends headers but only after waiting for n seconds. 
 Alternatively configure default with -w=n on cli

@@ -13,7 +13,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.2.2"
+var Version = "v0.2.3"
 var Port int
 var Prefix string
 
@@ -22,6 +22,14 @@ func get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"mse6":"Hello from the get endpoint"}`))
+	log.Info().Msgf("served %v request", r.URL.Path)
+}
+
+func echoheader(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.WriteHeader(200)
+	w.Write([]byte(fmt.Sprintf(`{"mse6":"Hello from the echo header endpoint. %v"}`, r.Header)))
 	log.Info().Msgf("served %v request", r.URL.Path)
 }
 
@@ -242,6 +250,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"put", put)
 	http.HandleFunc(prefix+"slowbody", slowbody)
 	http.HandleFunc(prefix+"slowheader", slowheader)
+	http.HandleFunc(prefix+"echoheader", echoheader)
 	http.HandleFunc(prefix+"badcontentlength", badcontentlength)
 	http.HandleFunc(prefix+"send", send)
 	http.HandleFunc(prefix+"gzip", gzipf)
