@@ -83,6 +83,11 @@ Sends a gzipped response with proper content encoding
 `GET /mse6/badgzip`
 Sends a response gzip content encoding header and garbled binary
 
+`OPTIONS /mse6/options?code=n`
+Sends a HTTP options response as per RFC7231, section 4.3.7. Contains Allow headers and a status code.
+Legal status codes are 200 and 204, the rest is undefined.
+
+
 ## Contributions
 The mse6 team welcomes all [contributors](https://github.com/simonmittag/mse6/blob/master/CONTRIBUTING.md). Everyone interacting with the project's codebase, issue trackers, chat rooms and mailing lists
 is expected to follow the [code of conduct](https://github.com/simonmittag/mse6/blob/master/CODE_OF_CONDUCT.md)
