@@ -13,7 +13,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.2.3"
+var Version = "v0.2.4"
 var Port int
 var Prefix string
 
@@ -188,6 +188,27 @@ func send404(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msgf("served %v request", r.URL.Path)
 }
 
+func options(w http.ResponseWriter, r *http.Request) {
+	code := 0
+	if len(r.URL.Query()["code"]) > 0 {
+		code, _ = strconv.Atoi(r.URL.Query()["code"][0])
+	} else {
+		code = 200
+	}
+
+	if r.Method == "OPTIONS" {
+		w.Header().Add("Allow", "OPTIONS")
+		w.Header().Add("Allow", "GET")
+	}
+	w.Header().Set("Content-Length", "0")
+
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.WriteHeader(code)
+
+	log.Info().Msgf("served %v OPTIONS request with code %d", r.URL.Path, code)
+}
+
 func send(w http.ResponseWriter, r *http.Request) {
 	code := 0
 	location := ""
@@ -255,6 +276,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"send", send)
 	http.HandleFunc(prefix+"gzip", gzipf)
 	http.HandleFunc(prefix+"badgzip", badgzipf)
+	http.HandleFunc(prefix+"options", options)
 	http.HandleFunc("/", send404)
 
 	var err error
