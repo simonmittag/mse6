@@ -210,20 +210,33 @@ func options(w http.ResponseWriter, r *http.Request) {
 }
 
 func getorhead(w http.ResponseWriter, r *http.Request) {
+	cl := false
+	if len(r.URL.Query()["cl"]) > 0 {
+		cl = true
+	}
+
 	code := 200
+	b := []byte(`{"mse6":"Hello from the getorhead endpoint"}`)
+	cls := "0"
+
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	if r.Method == "HEAD" {
 		w.Header().Add("ETag", "W/0815")
-		w.Header().Set("Content-Length", "0")
+		if cl {
+			cls = fmt.Sprintf("%d", len(b))
+		} else {
+			cls = "0"
+		}
+		w.Header().Set("Content-Length", cls)
 		w.WriteHeader(code)
 	} else if r.Method == "GET" {
-		b := []byte(`{"mse6":"Hello from the getorhead endpoint"}`)
-		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(b)))
+		cls = fmt.Sprintf("%d", len(b))
+		w.Header().Set("Content-Length", cls)
 		w.WriteHeader(code)
 		w.Write(b)
 	}
-	log.Info().Msgf("served %v request with method %s code 200", r.URL.Path, r.Method)
+	log.Info().Msgf("served %v request with method %s content-length %s code 200", r.URL.Path, r.Method, cls)
 }
 
 func send(w http.ResponseWriter, r *http.Request) {
