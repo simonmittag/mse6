@@ -236,7 +236,15 @@ func getorhead(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(code)
 		w.Write(b)
 	}
-	log.Info().Msgf("served %v request with method %s content-length %s code 200", r.URL.Path, r.Method, cls)
+	log.Info().Msgf("served %v request with X-Request-ID %s method %s content-length %s code 200", r.URL.Path, getXRequestId(r), r.Method, cls)
+}
+
+func getXRequestId(r *http.Request) string {
+	xrid := r.Header.Get("X-Request-Id")
+	if len(xrid) == 0 {
+		xrid = "none"
+	}
+	return xrid
 }
 
 func send(w http.ResponseWriter, r *http.Request) {

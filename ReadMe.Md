@@ -87,9 +87,11 @@ Sends a response gzip content encoding header and garbled binary
 Sends a HTTP OPTIONS response as per RFC7231, section 4.3.7. Contains Allow headers and a status code.
 Legal status codes are 200 and 204, the rest is undefined.
 
-`HEAD /mse6/getorhead`
+`HEAD /mse6/getorhead?cl=y`
 `GET /mse6/getorhead`
 Sends a HTTP HEAD response or a GET response, depending on request method.
+If query param cl is appended with any value, the Content-Length header of 
+the body otherwise sent by GET is also included in the HEAD response
 
 
 ## Contributions
