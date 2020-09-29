@@ -84,8 +84,12 @@ Sends a gzipped response with proper content encoding
 Sends a response gzip content encoding header and garbled binary
 
 `OPTIONS /mse6/options?code=n`
-Sends a HTTP options response as per RFC7231, section 4.3.7. Contains Allow headers and a status code.
+Sends a HTTP OPTIONS response as per RFC7231, section 4.3.7. Contains Allow headers and a status code.
 Legal status codes are 200 and 204, the rest is undefined.
+
+`HEAD /mse6/getorhead`
+`GET /mse6/getorhead`
+Sends a HTTP HEAD response or a GET response, depending on request method.
 
 
 ## Contributions

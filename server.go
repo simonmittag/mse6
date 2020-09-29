@@ -13,7 +13,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.2.4"
+var Version = "v0.2.5"
 var Port int
 var Prefix string
 
@@ -209,6 +209,23 @@ func options(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msgf("served %v OPTIONS request with code %d", r.URL.Path, code)
 }
 
+func getorhead(w http.ResponseWriter, r *http.Request) {
+	code := 200
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	if r.Method == "HEAD" {
+		w.Header().Add("ETag", "W/0815")
+		w.Header().Set("Content-Length", "0")
+		w.WriteHeader(code)
+	} else if r.Method == "GET" {
+		b := []byte(`{"mse6":"Hello from the getorhead endpoint"}`)
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", len(b)))
+		w.WriteHeader(code)
+		w.Write(b)
+	}
+	log.Info().Msgf("served %v request with method %s code 200", r.URL.Path, r.Method)
+}
+
 func send(w http.ResponseWriter, r *http.Request) {
 	code := 0
 	location := ""
@@ -277,6 +294,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"gzip", gzipf)
 	http.HandleFunc(prefix+"badgzip", badgzipf)
 	http.HandleFunc(prefix+"options", options)
+	http.HandleFunc(prefix+"getorhead", getorhead)
 	http.HandleFunc("/", send404)
 
 	var err error
