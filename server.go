@@ -13,7 +13,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.2.5"
+var Version = "v0.2.6"
 var Port int
 var Prefix string
 
@@ -22,7 +22,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"mse6":"Hello from the get endpoint"}`))
-	log.Info().Msgf("served %v request", r.URL.Path)
+	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 }
 
 func echoheader(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +30,7 @@ func echoheader(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
 	w.Write([]byte(fmt.Sprintf(`{"mse6":"Hello from the echo header endpoint. %v"}`, r.Header)))
-	log.Info().Msgf("served %v request", r.URL.Path)
+	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 }
 
 func redirected(w http.ResponseWriter, r *http.Request) {
@@ -38,11 +38,11 @@ func redirected(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
 	w.Write([]byte(`{"mse6":"Hello from the redirected endpoint. if you're reading this and you didn't load this URL, chances are you've been redirected.'"}`))
-	log.Info().Msgf("served %v request", r.URL.Path)
+	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 }
 
 func die(w http.ResponseWriter, r *http.Request) {
-	log.Info().Msgf("served %v request, process exiting with -1", r.URL.Path)
+	log.Info().Msgf("served %v request with X-Request-Id %s, process exiting with -1", r.URL.Path, getXRequestId(r))
 	os.Exit(-1)
 }
 
@@ -54,7 +54,7 @@ func post(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the post endpoint"}`))
-		log.Info().Msgf("served %v post request,%sreading %d bytes from inbound post", r.URL.Path, expectContinue(r), len(body))
+		log.Info().Msgf("served %v post request with X-Request-Id %s,%s reading %d bytes from inbound post", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
 	} else {
 		send404(w, r)
 	}
@@ -68,7 +68,7 @@ func put(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the put endpoint"}`))
-		log.Info().Msgf("served %v put request,%sreading %d bytes from inbound put", r.URL.Path, expectContinue(r), len(body))
+		log.Info().Msgf("served %v put request with X-Request-Id %s,%s reading %d bytes from inbound put", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
 	} else {
 		send404(w, r)
 	}
@@ -106,7 +106,7 @@ func slowbody(w http.ResponseWriter, r *http.Request) {
 	bufrw.WriteString(fmt.Sprintf(`,{"mse6":"and some more data from the slowbody endpoint", "waitSeconds":"%d"}]`, int(wd.Seconds())))
 	bufrw.Flush()
 
-	log.Info().Msgf("served %v request in %d seconds", r.URL.Path, int(wd.Seconds()))
+	log.Info().Msgf("served %v request with X-Request-Id %s in %d seconds", r.URL.Path, getXRequestId(r), int(wd.Seconds()))
 }
 
 func parseWaitDuration(r *http.Request) time.Duration {
@@ -144,7 +144,7 @@ func badcontentlength(w http.ResponseWriter, r *http.Request) {
 	bufrw.WriteString(`,{"mse6":"and some more data from the badcontentlength endpoint"}]`)
 	bufrw.Flush()
 
-	log.Info().Msgf("served %v request", r.URL.Path)
+	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 }
 
 func slowheader(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +155,7 @@ func slowheader(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 	w.Write([]byte(fmt.Sprintf(`{"mse6":"Hello from the slowheader endpoint", "waitSeconds":"%d"}`, int(wd.Seconds()))))
 
-	log.Info().Msgf("served %v request in %v seconds", r.URL.Path, int(wd.Seconds()))
+	log.Info().Msgf("served %v request with X-Request-Id %s in %v seconds", r.URL.Path, getXRequestId(r), int(wd.Seconds()))
 }
 
 func gzipf(w http.ResponseWriter, r *http.Request) {
@@ -164,7 +164,7 @@ func gzipf(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 	w.Write(gzipenc([]byte(`{"mse6":"Hello from the gzip endpoint"}`)))
 
-	log.Info().Msgf("served %v request", r.URL.Path)
+	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 }
 
 func badgzipf(w http.ResponseWriter, r *http.Request) {
@@ -176,7 +176,7 @@ func badgzipf(w http.ResponseWriter, r *http.Request) {
 	copy(gzipBytes, badBytes)
 	w.Write(gzipBytes)
 
-	log.Info().Msgf("served %v request", r.URL.Path)
+	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 }
 
 func send404(w http.ResponseWriter, r *http.Request) {
@@ -185,7 +185,7 @@ func send404(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(404)
 	w.Write([]byte(`{"mse6":"404"}`))
 
-	log.Info().Msgf("served %v request", r.URL.Path)
+	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 }
 
 func options(w http.ResponseWriter, r *http.Request) {
@@ -206,7 +206,7 @@ func options(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(code)
 
-	log.Info().Msgf("served %v OPTIONS request with code %d", r.URL.Path, code)
+	log.Info().Msgf("served %v OPTIONS request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), code)
 }
 
 func getorhead(w http.ResponseWriter, r *http.Request) {
@@ -287,7 +287,7 @@ func send(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(fmt.Sprintf(`{"mse6":"%d"}`, code)))
 	}
 
-	log.Info().Msgf("served %v %vrequest with code %d", r.URL.Path, redirect, code)
+	log.Info().Msgf("served %v %v request with X-Request-Id %s code %d", r.URL.Path, redirect, getXRequestId(r), code)
 }
 
 func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
