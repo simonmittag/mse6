@@ -1,6 +1,6 @@
 ![](mse6.png)
 
-mse6 is a mock server doing everything in it's power to get HTTP and TLS all wrong.
+mse6 is a mock HTTP/TLS server for integration tests and edge cases. Slow HTTP requests? check. Bad content-encoding? check.
 
 [![Circleci Builds](https://circleci.com/gh/simonmittag/mse6.svg?style=shield)](https://circleci.com/gh/simonmittag/mse6)
 [![Docker Build Status](https://img.shields.io/docker/cloud/build/simonmittag/mse6)](https://hub.docker.com/r/simonmittag/mse6/builds)
