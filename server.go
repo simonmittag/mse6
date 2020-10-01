@@ -13,7 +13,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.2.6"
+var Version = "v0.2.7"
 var Port int
 var Prefix string
 
@@ -52,7 +52,7 @@ func post(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		w.Header().Set("Server", "mse6 "+Version)
 		w.Header().Set("Content-Encoding", "identity")
-		w.WriteHeader(200)
+		w.WriteHeader(201)
 		w.Write([]byte(`{"mse6":"Hello from the post endpoint"}`))
 		log.Info().Msgf("served %v post request with X-Request-Id %s,%s reading %d bytes from inbound post", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
 	} else {
@@ -69,6 +69,46 @@ func put(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the put endpoint"}`))
 		log.Info().Msgf("served %v put request with X-Request-Id %s,%s reading %d bytes from inbound put", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
+	} else {
+		send404(w, r)
+	}
+}
+
+func patch(w http.ResponseWriter, r *http.Request) {
+	body, _ := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	if r.Method == "PATCH" {
+		w.Header().Set("Server", "mse6 "+Version)
+		w.Header().Set("Content-Encoding", "identity")
+		w.WriteHeader(200)
+		w.Write([]byte(`{"mse6":"Hello from the patch endpoint"}`))
+		log.Info().Msgf("served %v patch request with X-Request-Id %s,%s reading %d bytes from inbound put", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
+	} else {
+		send404(w, r)
+	}
+}
+
+func delete(w http.ResponseWriter, r *http.Request) {
+	body, _ := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	if r.Method == "DELETE" {
+		w.Header().Set("Server", "mse6 "+Version)
+		w.WriteHeader(204)
+		log.Info().Msgf("served %v delete request with X-Request-Id %s,%s reading %d bytes from inbound put", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
+	} else {
+		send404(w, r)
+	}
+}
+
+func trace(w http.ResponseWriter, r *http.Request) {
+	body, _ := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	if r.Method == "TRACE" {
+		w.Header().Set("Server", "mse6 "+Version)
+		w.Header().Set("Content-Type", "message/http")
+		w.Header().Set("Content-Length", "0")
+		w.WriteHeader(200)
+		log.Info().Msgf("served %v delete trace with X-Request-Id %s,%s reading %d bytes from inbound put", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
 	} else {
 		send404(w, r)
 	}
@@ -307,6 +347,9 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"redirected", redirected)
 	http.HandleFunc(prefix+"post", post)
 	http.HandleFunc(prefix+"put", put)
+	http.HandleFunc(prefix+"trace", trace)
+	http.HandleFunc(prefix+"patch", patch)
+	http.HandleFunc(prefix+"delete", delete)
 	http.HandleFunc(prefix+"slowbody", slowbody)
 	http.HandleFunc(prefix+"slowheader", slowheader)
 	http.HandleFunc(prefix+"echoheader", echoheader)

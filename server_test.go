@@ -2,6 +2,7 @@ package mse6
 
 import (
 	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -43,6 +44,121 @@ func TestGetResponds(t *testing.T) {
 	}
 }
 
+func TestPutResponds(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(put))
+	defer srv.Close()
+
+	jsonData := map[string]string{"scandi": "grind", "convex": "grind", "concave": "grind"}
+	jsonValue, _ := json.Marshal(jsonData)
+	buf := bytes.NewBuffer(jsonValue)
+
+	client := http.Client{}
+	req, _ := http.NewRequest("PUT", srv.URL, buf)
+	res, err := client.Do(req)
+	if err != nil {
+		t.Errorf("server did not return ok cause %v", err)
+	}
+
+	_, err2 := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err2 != nil {
+		t.Errorf("body parsing did not return ok cause %v", err2)
+	}
+
+	if res.StatusCode != 200 {
+		t.Errorf("response status code want 200, got %v", res.StatusCode)
+	}
+
+	ce := res.Header["Content-Encoding"][0]
+	if ce != "identity" {
+		t.Errorf("response Content Encoding should be identity got %v", ce)
+	}
+}
+
+func TestPatchResponds(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(patch))
+	defer srv.Close()
+
+	jsonData := map[string]string{"scandi": "grind", "convex": "grind", "concave": "grind"}
+	jsonValue, _ := json.Marshal(jsonData)
+	buf := bytes.NewBuffer(jsonValue)
+
+	client := http.Client{}
+	req, _ := http.NewRequest("PATCH", srv.URL, buf)
+	res, err := client.Do(req)
+	if err != nil {
+		t.Errorf("server did not return ok cause %v", err)
+	}
+
+	_, err2 := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err2 != nil {
+		t.Errorf("body parsing did not return ok cause %v", err2)
+	}
+
+	if res.StatusCode != 200 {
+		t.Errorf("response status code want 200, got %v", res.StatusCode)
+	}
+
+	ce := res.Header["Content-Encoding"][0]
+	if ce != "identity" {
+		t.Errorf("response Content Encoding should be identity got %v", ce)
+	}
+}
+
+func TestDeleteResponds(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(delete))
+	defer srv.Close()
+
+	jsonData := map[string]string{"scandi": "grind", "convex": "grind", "concave": "grind"}
+	jsonValue, _ := json.Marshal(jsonData)
+	buf := bytes.NewBuffer(jsonValue)
+
+	client := http.Client{}
+	req, _ := http.NewRequest("DELETE", srv.URL, buf)
+	res, err := client.Do(req)
+	if err != nil {
+		t.Errorf("server did not return ok cause %v", err)
+	}
+
+	_, err2 := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err2 != nil {
+		t.Errorf("body parsing did not return ok cause %v", err2)
+	}
+
+	if res.StatusCode != 204 {
+		t.Errorf("response status code want 204, got %v", res.StatusCode)
+	}
+}
+
+func TestTraceResponds(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(trace))
+	defer srv.Close()
+
+	client := http.Client{}
+	req, _ := http.NewRequest("TRACE", srv.URL, nil)
+	res, err := client.Do(req)
+	if err != nil {
+		t.Errorf("server did not return ok cause %v", err)
+	}
+
+	_, err2 := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err2 != nil {
+		t.Errorf("body parsing did not return ok cause %v", err2)
+	}
+
+	if res.StatusCode != 200 {
+		t.Errorf("response status code want 200, got %v", res.StatusCode)
+	}
+
+	ce := res.Header["Content-Type"][0]
+	if ce != "message/http" {
+		t.Errorf("response Content Encoding should be identity got %v", ce)
+	}
+}
+
 func TestPostResponds(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(post))
 	defer srv.Close()
@@ -59,7 +175,7 @@ func TestPostResponds(t *testing.T) {
 		t.Errorf("body parsing did not return ok cause %v", err2)
 	}
 
-	if res.StatusCode != 200 {
+	if res.StatusCode != 201 {
 		t.Errorf("response status code want 200, got %v", res.StatusCode)
 	}
 
@@ -73,38 +189,6 @@ func TestPostResponds(t *testing.T) {
 		t.Errorf("invalid response, wanted mse6 json, got %v", sbody)
 	}
 }
-
-//func TestSlowBodyResponds(t *testing.T) {
-//	waitDuration = 3
-//	//TODO: will not test the delay only the response because of httptest?
-//	srv := httptest.NewServer(http.HandlerFunc(slowbody))
-//	defer srv.Close()
-//
-//	res, err := http.Get(srv.URL)
-//	if err != nil {
-//		t.Errorf("server did not return ok cause %v", err)
-//	}
-//
-//	body, err2 := ioutil.ReadAll(res.Body)
-//	res.Body.Close()
-//	if err2 != nil {
-//		t.Errorf("body parsing did not return ok cause %v", err2)
-//	}
-//
-//	if res.StatusCode != 200 {
-//		t.Errorf("response status code want 200, got %v", res.StatusCode)
-//	}
-//
-//	ce := res.Header["Content-Encoding"][0]
-//	if ce != "identity" {
-//		t.Errorf("response Content Encoding should be identity got %v", ce)
-//	}
-//
-//	sbody := string(body)
-//	if !strings.Contains(sbody, "mse6") {
-//		t.Errorf("invalid response, wanted mse6 json, got %v", sbody)
-//	}
-//}
 
 func TestBadContentLengthResponds(t *testing.T) {
 	waitDuration = 3
