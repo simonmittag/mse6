@@ -57,7 +57,19 @@ Kills the server process without sending a response
 Standard json response with status code 200
 
 `POST /mse6/post`
+Standard json response with status code 201
+
+`PUT /mse6/put`
 Standard json response with status code 200
+
+`PATCH /mse6/patch`
+Standard json response with status code 200
+
+`DELETE /mse6/delete`
+Standard json response with status code 204
+
+`TRACE /mse6/trace`
+Standard json response with status code 200 and "message/http" content type
 
 `GET /mse6/echoheader`
 echoes all request headers sent on response body for testing

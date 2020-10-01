@@ -334,3 +334,45 @@ func TestSendResponds(t *testing.T) {
 		t.Errorf("response status code want 201, got %v", res.StatusCode)
 	}
 }
+
+func TestGetOrHeadResponds(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(getorhead))
+	defer srv.Close()
+
+	res, err := http.Get(srv.URL)
+	if err != nil {
+		t.Errorf("server did not return ok cause %v", err)
+	}
+
+	if res.StatusCode != 200 {
+		t.Errorf("response status code want 200, got %v", res.StatusCode)
+	}
+}
+
+func TestOptionsResponds(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(options))
+	defer srv.Close()
+
+	client := http.Client{}
+	req, _ := http.NewRequest("OPTIONS", srv.URL, nil)
+	res, err := client.Do(req)
+	if err != nil {
+		t.Errorf("server did not return ok cause %v", err)
+	}
+
+	_, err2 := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err2 != nil {
+		t.Errorf("body parsing did not return ok cause %v", err2)
+	}
+
+	if res.StatusCode != 200 {
+		t.Errorf("response status code want 200, got %v", res.StatusCode)
+	}
+
+	ce := res.Header["Allow"][0]
+	if ce != "OPTIONS" {
+		t.Errorf("response should allow OPTIONS but got %v", ce)
+	}
+}
+
