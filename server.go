@@ -54,7 +54,7 @@ func post(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(201)
 		w.Write([]byte(`{"mse6":"Hello from the post endpoint"}`))
-		log.Info().Msgf("served %v post request with X-Request-Id %s,%s reading %d bytes from inbound post", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
+		log.Info().Msgf("served %v post request with X-Request-Id %s,%s reading %d bytes from inbound", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
 	} else {
 		send404(w, r)
 	}
@@ -68,7 +68,7 @@ func put(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the put endpoint"}`))
-		log.Info().Msgf("served %v put request with X-Request-Id %s,%s reading %d bytes from inbound put", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
+		log.Info().Msgf("served %v put request with X-Request-Id %s,%s reading %d bytes from inbound", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
 	} else {
 		send404(w, r)
 	}
@@ -82,7 +82,7 @@ func patch(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the patch endpoint"}`))
-		log.Info().Msgf("served %v patch request with X-Request-Id %s,%s reading %d bytes from inbound put", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
+		log.Info().Msgf("served %v patch request with X-Request-Id %s,%s reading %d bytes from inbound", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
 	} else {
 		send404(w, r)
 	}
@@ -94,7 +94,7 @@ func delete(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "DELETE" {
 		w.Header().Set("Server", "mse6 "+Version)
 		w.WriteHeader(204)
-		log.Info().Msgf("served %v delete request with X-Request-Id %s,%s reading %d bytes from inbound put", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
+		log.Info().Msgf("served %v delete request with X-Request-Id %s,%s reading %d bytes from inbound", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
 	} else {
 		send404(w, r)
 	}
@@ -108,7 +108,7 @@ func trace(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "message/http")
 		w.Header().Set("Content-Length", "0")
 		w.WriteHeader(200)
-		log.Info().Msgf("served %v delete trace with X-Request-Id %s,%s reading %d bytes from inbound put", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
+		log.Info().Msgf("served %v delete trace with X-Request-Id %s,%s reading %d bytes from inbound", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
 	} else {
 		send404(w, r)
 	}
