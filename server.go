@@ -136,6 +136,7 @@ func chunked(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Content-Encoding", "identity")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Transfer-Encoding", "chunked")
 	w.WriteHeader(200)
