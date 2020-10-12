@@ -13,7 +13,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.2.8"
+var Version = "v0.2.9"
 var Port int
 var Prefix string
 
@@ -25,7 +25,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"mse6":"Hello from the get endpoint"}`))
 		log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 	} else {
-		send405(w,r)
+		send405(w, r)
 	}
 }
 
@@ -37,7 +37,7 @@ func echoheader(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(fmt.Sprintf(`{"mse6":"Hello from the echo header endpoint. %v"}`, r.Header)))
 		log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 	} else {
-		send405(w,r)
+		send405(w, r)
 	}
 }
 
@@ -129,6 +129,27 @@ func expectContinue(r *http.Request) string {
 	} else {
 		return " "
 	}
+}
+
+func chunked(w http.ResponseWriter, r *http.Request) {
+	wd := parseWaitDuration(r)
+
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Transfer-Encoding", "chunked")
+	w.WriteHeader(200)
+
+	f, _ := w.(http.Flusher)
+
+	w.Write([]byte(`[{"mse6":"Hello from the chunked endpoint"}`))
+	f.Flush()
+	//sleep some
+	time.Sleep(wd)
+	w.Write([]byte(fmt.Sprintf(`,{"mse6":"and some more data from the chunked endpoint", "waitSeconds":"%d"}]`, int(wd.Seconds()))))
+	f.Flush()
+
+	log.Info().Msgf("served %v chunked request with X-Request-Id %s in %d seconds", r.URL.Path, getXRequestId(r), int(wd.Seconds()))
 }
 
 func slowbody(w http.ResponseWriter, r *http.Request) {
@@ -262,7 +283,7 @@ func options(w http.ResponseWriter, r *http.Request) {
 
 		log.Info().Msgf("served %v OPTIONS request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), code)
 	} else {
-		send405(w,r)
+		send405(w, r)
 	}
 }
 
@@ -295,7 +316,7 @@ func getorhead(w http.ResponseWriter, r *http.Request) {
 		w.Write(b)
 		log.Info().Msgf("served %v request with X-Request-ID %s method %s content-length %s code 200", r.URL.Path, getXRequestId(r), r.Method, cls)
 	} else {
-		send405(w,r)
+		send405(w, r)
 	}
 
 }
@@ -363,23 +384,24 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	}
 	log.Info().Msgf("mse6 %s starting %s server on port %d with prefix '%s'", Version, mode, Port, Prefix)
 
+	http.HandleFunc(prefix+"badcontentlength", badcontentlength)
+	http.HandleFunc(prefix+"badgzip", badgzipf)
+	http.HandleFunc(prefix+"chunked", chunked)
+	http.HandleFunc(prefix+"delete", delete)
 	http.HandleFunc(prefix+"die", die)
+	http.HandleFunc(prefix+"echoheader", echoheader)
 	http.HandleFunc(prefix+"get", get)
+	http.HandleFunc(prefix+"gzip", gzipf)
+	http.HandleFunc(prefix+"getorhead", getorhead)
 	http.HandleFunc(prefix+"redirected", redirected)
+	http.HandleFunc(prefix+"options", options)
+	http.HandleFunc(prefix+"patch", patch)
 	http.HandleFunc(prefix+"post", post)
 	http.HandleFunc(prefix+"put", put)
-	http.HandleFunc(prefix+"trace", trace)
-	http.HandleFunc(prefix+"patch", patch)
-	http.HandleFunc(prefix+"delete", delete)
+	http.HandleFunc(prefix+"send", send)
 	http.HandleFunc(prefix+"slowbody", slowbody)
 	http.HandleFunc(prefix+"slowheader", slowheader)
-	http.HandleFunc(prefix+"echoheader", echoheader)
-	http.HandleFunc(prefix+"badcontentlength", badcontentlength)
-	http.HandleFunc(prefix+"send", send)
-	http.HandleFunc(prefix+"gzip", gzipf)
-	http.HandleFunc(prefix+"badgzip", badgzipf)
-	http.HandleFunc(prefix+"options", options)
-	http.HandleFunc(prefix+"getorhead", getorhead)
+	http.HandleFunc(prefix+"trace", trace)
 	http.HandleFunc("/", send404)
 
 	var err error

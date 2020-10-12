@@ -50,29 +50,52 @@ mse6
 ```
 
 ## Routes
-`GET /mse6/die`
-Kills the server process without sending a response
+`GET /mse6/badcontentlength`
+Sends invalid content length header, too large for response
 
-`GET /mse6/get`
-Standard json response with status code 200
+`GET /mse6/badgzip`
+Sends a response gzip content encoding header and garbled binary
 
-`POST /mse6/post`
-Standard json response with status code 201
-
-`PUT /mse6/put`
-Standard json response with status code 200
-
-`PATCH /mse6/patch`
-Standard json response with status code 200
+`GET /mse6/chunked`
+Sends a chunked HTTP/1.1 response to the client
 
 `DELETE /mse6/delete`
 Standard json response with status code 204
 
-`TRACE /mse6/trace`
-Standard json response with status code 200 and "message/http" content type
+`GET /mse6/die`
+Kills the server process without sending a response
 
 `GET /mse6/echoheader`
 echoes all request headers sent on response body for testing
+
+`GET /mse6/get`
+Standard json response with status code 200
+
+`HEAD /mse6/getorhead?cl=y`
+`GET /mse6/getorhead`
+Sends a HTTP HEAD response or a GET response, depending on request method.
+If query param cl is appended with any value, the Content-Length header of 
+the body otherwise sent by GET is also included in the HEAD response
+
+`GET /mse6/gzip`
+Sends a gzipped response with proper content encoding
+
+`OPTIONS /mse6/options?code=n`
+Sends a HTTP OPTIONS response as per RFC7231, section 4.3.7. Contains Allow headers and a status code.
+Legal status codes are 200 and 204, the rest is undefined.
+
+`POST /mse6/post`
+Standard json response with status code 201
+
+`PATCH /mse6/patch`
+Standard json response with status code 200
+
+`PUT /mse6/put`
+Standard json response with status code 200
+
+`GET /mse6/send?code=nnn&url=http%3A%2F%2Fwww.google.com`
+Sends arbitrary response code between 100 and 999. For redirects, you can supply a custom
+location parameter. Don't forget to URL encode your params.
 
 `GET /mse6/slowheader?wait=n`
 Sends headers but only after waiting for n seconds. 
@@ -82,29 +105,8 @@ Alternatively configure default with -w=n on cli
 Sends body after initial lag of n/2s, then sends remaining body without chunking after n/2s. 
 Alternatively configure default with -w=n on cli
 
-`GET /mse6/badcontentlength`
-Sends invalid content length header, too large for response
-
-`GET /mse6/send?code=nnn&url=http%3A%2F%2Fwww.google.com`
-Sends arbitrary response code between 100 and 999. For redirects, you can supply a custom
-location parameter. Don't forget to URL encode your params.
-
-`GET /mse6/gzip`
-Sends a gzipped response with proper content encoding
-
-`GET /mse6/badgzip`
-Sends a response gzip content encoding header and garbled binary
-
-`OPTIONS /mse6/options?code=n`
-Sends a HTTP OPTIONS response as per RFC7231, section 4.3.7. Contains Allow headers and a status code.
-Legal status codes are 200 and 204, the rest is undefined.
-
-`HEAD /mse6/getorhead?cl=y`
-`GET /mse6/getorhead`
-Sends a HTTP HEAD response or a GET response, depending on request method.
-If query param cl is appended with any value, the Content-Length header of 
-the body otherwise sent by GET is also included in the HEAD response
-
+`TRACE /mse6/trace`
+Standard json response with status code 200 and "message/http" content type
 
 ## Contributions
 The mse6 team welcomes all [contributors](https://github.com/simonmittag/mse6/blob/master/CONTRIBUTING.md). Everyone interacting with the project's codebase, issue trackers, chat rooms and mailing lists
