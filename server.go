@@ -373,6 +373,56 @@ func send(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msgf("served %v %v request with X-Request-Id %s code %d", r.URL.Path, redirect, getXRequestId(r), code)
 }
 
+func jwks(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.WriteHeader(200)
+	w.Write([]byte(`{
+  "keys": [
+    {
+      "alg":"RS256",
+      "kty":"RSA",
+      "n":"w6hKIwXAuI5VqmQjvQmgZdNbV80GMC3UkPmm-OQDjzOjeLRA6yLPYLZHaGhONx37DWMA-a3D_Zg_-oueYuZlrhusbTDC-bt1JSctAJV3ollQaalmJQHhLfyL54Y6Cgt3H_68u4Q3kLrFOmdFJwRswHR-1m-Oh_-uphL9IYR5U0zYcPH05Qwg2YYP4LiIV8inYQEeCjWXIAc3L3cqHAawLSDfcGs3ZnClZrJQ9lmMZgUzB6pGoKohOi_QVA_uN_86PSeA04rXwHFRmU5B6UEhT81kDo5VTnPAbK1eUtn13UQlqie5KMPQ7uBV3O7iASqVDzxIj4ov1YxHMIvIVSUPCw",
+      "e":"AQAB",
+      "kid": "k1"
+    },
+    {
+      "alg":"RS256",
+      "kty":"RSA",
+      "n":"uvtFgDnIcdB_jqSLICnsz7FXU_uiFSdJGVpGc5Dy-xm8wZwgiy6lJdL9_TtYjnmJefkPVyYdazabvGvOcns73rshkt0g6Ackqa72yiUEsv1kzCvBObPYNXgr1dNda8_F_ZiO3V9BtcTgQs9Y6rdOWJq7zNpees8pfuhEamk3sQp8AmKImFNfuZceNeglMHLLt0NcmSQp4VmhDCladFa1EdLirtFM9BtEIOlX20SRcN1LjeRsos8JywpQRxe6M3bnGFXcDQHqrsvwkkzu-vBtnPFa2e-jkBSDWkf6ZwvdJnEEUiJkHYTgJuXD1sbGeUkQL1Jb5NaQHhQ1mt3xn1z0tw",
+      "e":"AQAB",
+      "kid": "k2"
+    }
+  ]
+}
+`))
+	log.Info().Msgf("served %v jwks request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), 200)
+}
+
+func jwksbad(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.WriteHeader(200)
+	w.Write([]byte(`{
+  "keys": [
+    {
+      "kty":"RSA",
+      "n":"uFrwC7xqek3lA7TkRMBr7koamTCE5DF0UxVPd0FbmloGTkkLLXW3R6fOxubi8O2PXk_tN-TfJZiOYswUE_-ngR7gEXLebosLtVdmbGraTGwtoGmpSe3FRr9ZmQu74pZsAzwqZVMqz6CINc7uvxTIDjd98ORUrnuxqgHE9Yz_uo2qvnaOgWIXKhkDkMqA8O0Fk_kaCfeeZQMN70OnCwIS-LPFE8uYGIdbaEIkjZfMxm_iNRENOV849vwOiOuWruCyp-YMqTVtcW49Q1mcZfyGT7B5GHWe7MtxqQNhf1m2Nvo1m_LvaLap_EM3684xOa6RexB1XdB8oegpMRygPx7orw",
+      "e":"AQAB",
+      "kid": "k1"
+    },
+    {
+      "kty":"RSA",
+      "n":"tXhyIjACJ9I_1RLe6ewuBIzZ1275BUssbeUdE87qSNpkJHsn6lNKPUQVix_Hk8MDME6Et1zmyK7a2XoTovMELgaHFSpH3i-Eqdl1jG9c0_vkHlwC6Ba-MLxvSCn6HVrcSMMGpOdVHUU4cuqDRpVO4owby8e1ZSS1hdhaqs5t464BID7e907oe7hE8deqD9MXmGEimcXXEJTF84wH2xcBqUO35dcc5SBJfPAibZ6U2AaNIEZJouUYMJOqwVttTBvKYwhuEwcxsPrYfkufbmGb9dnTfKMJamujAwFf-YUwifYfpY763cQ4Ex7eHWVp4LlBB9zYYBBGp2ueLuhJSMWhk0yP4KBk8ZDcIgLZKsTzYDdnvbecii7qAxRYMaSEkdjSj2JTmV_GtDBLmkejVNqo9s_BvgEIDiPipTWesPKsaNigyhs6p6POJvOHkAAc3-88cfShLuDpobWmNEO6eOAGGvACbWs-EOepMrvWuL53QWgJzJaKsxgGejQ1jVCIRZeaVsWiPrJFSUk87lWwxGpRcSdvOATlGgjz28jL_CqtuAySGTb4S0LsBFgdpykrGChjbajxeMMjnV3khI4c_KXlSmOsxHfJ5vzfbicw1Inn_4RoVxw72p4t1NN3va1W6jZt_FZ5R8xgV5T5zgeAEkSmHJa_PXCQoBYwK7cuMJhjRaM",
+      "e":"AQAB",
+      "kid": "k2"
+    }
+  ]
+}
+`))
+	log.Info().Msgf("served %v jwks request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), 200)
+}
+
 func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	waitDuration = time.Second * time.Duration(waitSeconds)
 	log.Info().Msgf("wait duration for slow requests seconds %v", waitDuration.Seconds())
@@ -391,6 +441,8 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"delete", delete)
 	http.HandleFunc(prefix+"die", die)
 	http.HandleFunc(prefix+"echoheader", echoheader)
+	http.HandleFunc(prefix+"jwks", jwks)
+	http.HandleFunc(prefix+"jwksbad", jwksbad)
 	http.HandleFunc(prefix+"get", get)
 	http.HandleFunc(prefix+"gzip", gzipf)
 	http.HandleFunc(prefix+"getorhead", getorhead)
