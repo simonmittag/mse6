@@ -13,7 +13,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.2.10"
+var Version = "v0.2.11"
 var Port int
 var Prefix string
 
