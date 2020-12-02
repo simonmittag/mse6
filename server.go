@@ -13,7 +13,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.2.10"
+var Version = "v0.2.11"
 var Port int
 var Prefix string
 
@@ -420,7 +420,33 @@ func jwksbad(w http.ResponseWriter, r *http.Request) {
   ]
 }
 `))
-	log.Info().Msgf("served %v jwks request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), 200)
+	log.Info().Msgf("served %v bad jwks request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), 200)
+}
+
+func jwksmix(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.WriteHeader(200)
+	w.Write([]byte(`{
+  "keys": [
+    {
+	  "alg":"RS256",
+      "kty":"RSA",
+      "n":"uFrwC7xqek3lA7TkRMBr7koamTCE5DF0UxVPd0FbmloGTkkLLXW3R6fOxubi8O2PXk_tN-TfJZiOYswUE_-ngR7gEXLebosLtVdmbGraTGwtoGmpSe3FRr9ZmQu74pZsAzwqZVMqz6CINc7uvxTIDjd98ORUrnuxqgHE9Yz_uo2qvnaOgWIXKhkDkMqA8O0Fk_kaCfeeZQMN70OnCwIS-LPFE8uYGIdbaEIkjZfMxm_iNRENOV849vwOiOuWruCyp-YMqTVtcW49Q1mcZfyGT7B5GHWe7MtxqQNhf1m2Nvo1m_LvaLap_EM3684xOa6RexB1XdB8oegpMRygPx7orw",
+      "e":"AQAB",
+      "kid": "k1"
+    },
+    {
+      "alg": "RS384",
+	  "kty":"RSA",
+	  "n":"tXhyIjACJ9I_1RLe6ewuBIzZ1275BUssbeUdE87qSNpkJHsn6lNKPUQVix_Hk8MDME6Et1zmyK7a2XoTovMELgaHFSpH3i-Eqdl1jG9c0_vkHlwC6Ba-MLxvSCn6HVrcSMMGpOdVHUU4cuqDRpVO4owby8e1ZSS1hdhaqs5t464BID7e907oe7hE8deqD9MXmGEimcXXEJTF84wH2xcBqUO35dcc5SBJfPAibZ6U2AaNIEZJouUYMJOqwVttTBvKYwhuEwcxsPrYfkufbmGb9dnTfKMJamujAwFf-YUwifYfpY763cQ4Ex7eHWVp4LlBB9zYYBBGp2ueLuhJSMWhk0yP4KBk8ZDcIgLZKsTzYDdnvbecii7qAxRYMaSEkdjSj2JTmV_GtDBLmkejVNqo9s_BvgEIDiPipTWesPKsaNigyhs6p6POJvOHkAAc3-88cfShLuDpobWmNEO6eOAGGvACbWs-EOepMrvWuL53QWgJzJaKsxgGejQ1jVCIRZeaVsWiPrJFSUk87lWwxGpRcSdvOATlGgjz28jL_CqtuAySGTb4S0LsBFgdpykrGChjbajxeMMjnV3khI4c_KXlSmOsxHfJ5vzfbicw1Inn_4RoVxw72p4t1NN3va1W6jZt_FZ5R8xgV5T5zgeAEkSmHJa_PXCQoBYwK7cuMJhjRaM",
+      "e":"AQAB",
+      "kid": "k2"
+    }
+  ]
+}
+`))
+	log.Info().Msgf("served %v mixed jwks request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), 200)
 }
 
 func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
@@ -443,6 +469,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"echoheader", echoheader)
 	http.HandleFunc(prefix+"jwks", jwks)
 	http.HandleFunc(prefix+"jwksbad", jwksbad)
+	http.HandleFunc(prefix+"jwksmix", jwksmix)
 	http.HandleFunc(prefix+"get", get)
 	http.HandleFunc(prefix+"gzip", gzipf)
 	http.HandleFunc(prefix+"getorhead", getorhead)
