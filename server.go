@@ -13,7 +13,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.2.11"
+var Version = "v0.2.12"
 var Port int
 var Prefix string
 
@@ -449,6 +449,29 @@ func jwksmix(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msgf("served %v mixed jwks request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), 200)
 }
 
+func jwkses256(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.WriteHeader(200)
+	w.Write([]byte(`{
+  "keys": [
+    {
+    	"alg": "ES256",
+    	"created_at": 1560466143,
+    	"crv": "P-256",
+    	"expired_at": null,
+    	"kid": "6c5516e1-92dc-479e-a8ff-5a51992e0001",
+    	"kty": "EC",
+    	"use": "sig",
+    	"x": "35lvC8uz2QrWpQJ3TUH8t9o9DURMp7ydU518RKDl20k",
+    	"y": "I8BuXB2bvxelzJAd7OKhd-ZwjCst05Fx47Mb_0ugros"
+	}
+  ]
+}
+`))
+	log.Info().Msgf("served %v jwkses256 request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), 200)
+}
+
 func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	waitDuration = time.Second * time.Duration(waitSeconds)
 	log.Info().Msgf("wait duration for slow requests seconds %v", waitDuration.Seconds())
@@ -468,6 +491,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"die", die)
 	http.HandleFunc(prefix+"echoheader", echoheader)
 	http.HandleFunc(prefix+"jwks", jwks)
+	http.HandleFunc(prefix+"jwkses256", jwkses256)
 	http.HandleFunc(prefix+"jwksbad", jwksbad)
 	http.HandleFunc(prefix+"jwksmix", jwksmix)
 	http.HandleFunc(prefix+"get", get)
