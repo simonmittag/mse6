@@ -13,7 +13,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.2.12"
+var Version = "v0.2.13"
 var Port int
 var Prefix string
 
@@ -399,6 +399,76 @@ func jwks(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msgf("served %v jwks request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), 200)
 }
 
+func jwksrotate(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.WriteHeader(200)
+
+	now := time.Now().Unix()
+	if now%2 == 0 {
+		w.Write([]byte(`{
+  "keys": [
+    {
+      "alg":"RS256",
+      "kty":"RSA",
+      "n":"w6hKIwXAuI5VqmQjvQmgZdNbV80GMC3UkPmm-OQDjzOjeLRA6yLPYLZHaGhONx37DWMA-a3D_Zg_-oueYuZlrhusbTDC-bt1JSctAJV3ollQaalmJQHhLfyL54Y6Cgt3H_68u4Q3kLrFOmdFJwRswHR-1m-Oh_-uphL9IYR5U0zYcPH05Qwg2YYP4LiIV8inYQEeCjWXIAc3L3cqHAawLSDfcGs3ZnClZrJQ9lmMZgUzB6pGoKohOi_QVA_uN_86PSeA04rXwHFRmU5B6UEhT81kDo5VTnPAbK1eUtn13UQlqie5KMPQ7uBV3O7iASqVDzxIj4ov1YxHMIvIVSUPCw",
+      "e":"AQAB",
+      "kid": "k1"
+    }
+  ]
+}`+"\n"))
+	} else {
+		w.Write([]byte(`{
+  "keys": [
+    {
+      "alg":"RS256",
+      "kty":"RSA",
+      "n":"uvtFgDnIcdB_jqSLICnsz7FXU_uiFSdJGVpGc5Dy-xm8wZwgiy6lJdL9_TtYjnmJefkPVyYdazabvGvOcns73rshkt0g6Ackqa72yiUEsv1kzCvBObPYNXgr1dNda8_F_ZiO3V9BtcTgQs9Y6rdOWJq7zNpees8pfuhEamk3sQp8AmKImFNfuZceNeglMHLLt0NcmSQp4VmhDCladFa1EdLirtFM9BtEIOlX20SRcN1LjeRsos8JywpQRxe6M3bnGFXcDQHqrsvwkkzu-vBtnPFa2e-jkBSDWkf6ZwvdJnEEUiJkHYTgJuXD1sbGeUkQL1Jb5NaQHhQ1mt3xn1z0tw",
+      "e":"AQAB",
+      "kid": "k2"
+    }
+  ]
+}`+"\n"))
+	}
+
+	log.Info().Msgf("served %v rotating jwks request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), 200)
+}
+
+func jwksbadrotate(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.WriteHeader(200)
+
+	now := time.Now().Unix()
+	if now%2 == 0 {
+		w.Write([]byte(`{
+  "keys": [
+    {
+      "alg":"RS256",
+      "kty":"RSA",
+      "n":"w6hKIwXAuI5VqmQjvQmgZdNbV80GMC3UkPmm-OQDjzOjeLRA6yLPYLZHaGhONx37DWMA-a3D_Zg_-oueYuZlrhusbTDC-bt1JSctAJV3ollQaalmJQHhLfyL54Y6Cgt3H_68u4Q3kLrFOmdFJwRswHR-1m-Oh_-uphL9IYR5U0zYcPH05Qwg2YYP4LiIV8inYQEeCjWXIAc3L3cqHAawLSDfcGs3ZnClZrJQ9lmMZgUzB6pGoKohOi_QVA_uN_86PSeA04rXwHFRmU5B6UEhT81kDo5VTnPAbK1eUtn13UQlqie5KMPQ7uBV3O7iASqVDzxIj4ov1YxHMIvIVSUPCw",
+      "e":"AQAB",
+      "kid": "k1"
+    }
+  ]
+}`+"\n"))
+	} else {
+		w.Write([]byte(`{
+  "keys": [
+    {
+      "alg":"HS256",
+      "kty":"RSA",
+      "n":"xxuvtFgDnIcdB_jqSLICnsz7FXU_uiFSdJGVpGc5Dy-xm8wZwgiy6lJdL9_TtYjnmJefkPVyYdazabvGvOcns73rshkt0g6Ackqa72yiUEsv1kzCvBObPYNXgr1dNda8_F_ZiO3V9BtcTgQs9Y6rdOWJq7zNpees8pfuhEamk3sQp8AmKImFNfuZceNeglMHLLt0NcmSQp4VmhDCladFa1EdLirtFM9BtEIOlX20SRcN1LjeRsos8JywpQRxe6M3bnGFXcDQHqrsvwkkzu-vBtnPFa2e-jkBSDWkf6ZwvdJnEEUiJkHYTgJuXD1sbGeUkQL1Jb5NaQHhQ1mt3xn1z0tw",
+      "e":"AQAB",
+      "kid": "kbad"
+    }
+  ]
+}`+"\n"))
+	}
+
+	log.Info().Msgf("served %v bad rotating jwks request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), 200)
+}
+
 func jwksbad(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
@@ -494,6 +564,8 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"jwkses256", jwkses256)
 	http.HandleFunc(prefix+"jwksbad", jwksbad)
 	http.HandleFunc(prefix+"jwksmix", jwksmix)
+	http.HandleFunc(prefix+"jwksrotate", jwksrotate)
+	http.HandleFunc(prefix+"jwksbadrotate", jwksbadrotate)
 	http.HandleFunc(prefix+"get", get)
 	http.HandleFunc(prefix+"gzip", gzipf)
 	http.HandleFunc(prefix+"getorhead", getorhead)

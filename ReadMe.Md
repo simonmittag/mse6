@@ -68,6 +68,15 @@ Kills the server process without sending a response
 `GET /mse6/echoheader`
 echoes all request headers sent on response body for testing
 
+`GET /mse6/jwksmix`
+sends a list of mixed algorithm Jwks keys
+
+`GET /mse6/jwksbad`
+sends illegally formatted Jwks key
+
+`GET /mse6/jwksbadrotate`
+sends a rotating Jwks key that alternates every 1 second between a legal and illegal key
+
 `GET /mse6/get`
 Standard json response with status code 200
 
