@@ -74,8 +74,8 @@ sends a list of mixed algorithm Jwks keys
 `GET /mse6/jwksbad`
 sends illegally formatted Jwks key
 
-`GET /mse6/jwksbadrotate`
-sends a rotating Jwks key that alternates every 1 second between a legal and illegal key
+`GET /mse6/jwksbadrotate?rc=0`
+sends a rotating Jwks key that alternates every request. Sends malformed keys. Reset good behaviour with rc=0
 
 `GET /mse6/get`
 Standard json response with status code 200

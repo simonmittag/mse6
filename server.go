@@ -13,9 +13,10 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.2.13"
+var Version = "v0.2.14"
 var Port int
 var Prefix string
+var rc = 0
 
 func get(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
@@ -435,13 +436,7 @@ func jwksrotate(w http.ResponseWriter, r *http.Request) {
 }
 
 func jwksbadrotate(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Server", "mse6 "+Version)
-	w.Header().Set("Content-Encoding", "identity")
-	w.WriteHeader(200)
-
-	now := time.Now().Unix()
-	if now%2 == 0 {
-		w.Write([]byte(`{
+	k1:=`{
   "keys": [
     {
       "alg":"RS256",
@@ -451,22 +446,50 @@ func jwksbadrotate(w http.ResponseWriter, r *http.Request) {
       "kid": "k1"
     }
   ]
-}`+"\n"))
-	} else {
-		w.Write([]byte(`{
+}`+"\n"
+	k2:=`{
+  "keys": [
+    {
+      "alg":"RS256",
+      "kty":"RSA",
+      "n":"uvtFgDnIcdB_jqSLICnsz7FXU_uiFSdJGVpGc5Dy-xm8wZwgiy6lJdL9_TtYjnmJefkPVyYdazabvGvOcns73rshkt0g6Ackqa72yiUEsv1kzCvBObPYNXgr1dNda8_F_ZiO3V9BtcTgQs9Y6rdOWJq7zNpees8pfuhEamk3sQp8AmKImFNfuZceNeglMHLLt0NcmSQp4VmhDCladFa1EdLirtFM9BtEIOlX20SRcN1LjeRsos8JywpQRxe6M3bnGFXcDQHqrsvwkkzu-vBtnPFa2e-jkBSDWkf6ZwvdJnEEUiJkHYTgJuXD1sbGeUkQL1Jb5NaQHhQ1mt3xn1z0tw",
+      "e":"AQAB",
+      "kid": "k2"
+    }
+  ]
+}`+"\n"
+	k2b:=`{
   "keys": [
     {
       "alg":"HS256",
       "kty":"RSA",
       "n":"xxuvtFgDnIcdB_jqSLICnsz7FXU_uiFSdJGVpGc5Dy-xm8wZwgiy6lJdL9_TtYjnmJefkPVyYdazabvGvOcns73rshkt0g6Ackqa72yiUEsv1kzCvBObPYNXgr1dNda8_F_ZiO3V9BtcTgQs9Y6rdOWJq7zNpees8pfuhEamk3sQp8AmKImFNfuZceNeglMHLLt0NcmSQp4VmhDCladFa1EdLirtFM9BtEIOlX20SRcN1LjeRsos8JywpQRxe6M3bnGFXcDQHqrsvwkkzu-vBtnPFa2e-jkBSDWkf6ZwvdJnEEUiJkHYTgJuXD1sbGeUkQL1Jb5NaQHhQ1mt3xn1z0tw",
       "e":"AQAB",
-      "kid": "kbad"
+      "kid": "k2b"
     }
   ]
-}`+"\n"))
+}`+"\n"
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.WriteHeader(200)
+
+	if len(r.URL.Query()["rc"]) > 0 {
+		c, _ := strconv.Atoi(r.URL.Query()["rc"][0])
+		if c == 0 {
+			rc=0
+		}
+	}
+	rc++
+
+	if rc==1 {
+		w.Write([]byte(k1))
+	} else if rc==2 {
+		w.Write([]byte(k2))
+	} else {
+		w.Write([]byte(k2b))
 	}
 
-	log.Info().Msgf("served %v bad rotating jwks request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), 200)
+	log.Info().Msgf("served %v rotating jwks request count %d with X-Request-Id %s code %d", r.URL.Path, rc, getXRequestId(r), 200)
 }
 
 func jwksbad(w http.ResponseWriter, r *http.Request) {
