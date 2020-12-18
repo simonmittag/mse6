@@ -13,7 +13,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.2.14"
+var Version = "v0.2.15"
 var Port int
 var Prefix string
 var rc = 0
@@ -469,6 +469,24 @@ func jwksbadrotate(w http.ResponseWriter, r *http.Request) {
     }
   ]
 }`+"\n"
+	k3k4 := `{
+  "keys": [
+    {
+      "alg":"RS256",
+      "kty":"RSA",
+      "n":"qr_urqMJcKsSPs8VsIbzfM7WMFffvPnno3vUpvxR-ONiS83y46Wz-cYVmrA5so9MvCCmMaRamhTyTrT75cPV5ec2v1wu5UXQKPsyGaK8F_dYcuFd4G-fnZFRGT_EBHhjXU_d2eEdgxjtcHRWMJZoE4tR5ojQFOn6kbCT8HeoZriBnCRTunL7eBjjPQk7_sxjomJanJqh7JkprakA3SnSzUacetjXeFrTw5T4XCvzSAY8T75CUlho0019itG4BPw_zkqlEZZKC0J-vz6Q1Au0Di6kyoRnZJCDHzPa7gStZ1-MqIZNyYr2-eHLECYU9L04pIBtKHufaNjF4jR3XXz_nQ",
+      "e":"AQAB",
+      "kid": "k3"
+    },
+	{
+      "alg":"RS256",
+      "kty":"RSA",
+      "n":"3-qU4mZcorx_oZWwQ_N-_tJgxk2Fz8EStfCM5xuumdhp26cF9yARrvd4mPcYxLN-d0R98gYg8Z_QwvqIzicp22ziGWLo2URH8lSxUcsEco2qCCyetqh1BXYId8fQiUOTq3yxdQ_LpEetrAuTfoiKRP_B3njV8VLmtNEc11WJx5bMg31QV4Y132aiaTlLiwgLqHLoDI2JLGE9NP4kH_MElPYKRTCTXh6Jj7aBp7PCTYahCt07qzOGVZby7L87gDOkJKPUu7GM4qPFcB0T7OL_KlimSIJclAfxk1UxrOkfdYw09K6BhR8LIjrHEm1JtI5pLyEzGlhjkhBp_wBta_bChw",
+      "e":"AQAB",
+      "kid": "k4"
+    }
+  ]
+}`+"\n"
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
@@ -485,8 +503,10 @@ func jwksbadrotate(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(k1))
 	} else if rc==2 {
 		w.Write([]byte(k2))
-	} else {
+	} else if rc==3 {
 		w.Write([]byte(k2b))
+	} else {
+		w.Write([]byte(k3k4))
 	}
 
 	log.Info().Msgf("served %v rotating jwks request count %d with X-Request-Id %s code %d", r.URL.Path, rc, getXRequestId(r), 200)
