@@ -157,15 +157,17 @@ func chunked(w http.ResponseWriter, r *http.Request) {
 func slowbody(w http.ResponseWriter, r *http.Request) {
 	wd := parseWaitDuration(r)
 
-	w.Header().Set("Server", "mse6 "+Version)
-	w.Header().Set("Content-Encoding", "identity")
-	//we must have this, else golang sets it to 'chunked' after 2nd write
-	w.Header().Set("Transfer-Encoding", "identity")
-	w.WriteHeader(200)
-
 	hj, _ := w.(http.Hijacker)
 	conn, bufrw, _ := hj.Hijack()
 	defer conn.Close()
+
+	bufrw.WriteString("HTTP/1.1 200 OK")
+	bufrw.WriteString(fmt.Sprintf("\nServer: mse6 %s", Version))
+	bufrw.WriteString("\nContent-Encoding: identity")
+	bufrw.WriteString("\nConnection: close")
+	bufrw.WriteString("\n")
+	bufrw.WriteString("\n")
+	bufrw.Flush()
 
 	//sleep half the wait duration and send a few bytes
 	time.Sleep(wd / 2)
@@ -194,16 +196,18 @@ func parseWaitDuration(r *http.Request) time.Duration {
 }
 
 func badcontentlength(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Server", "mse6 "+Version)
-	w.Header().Set("Content-Encoding", "identity")
-	w.Header().Set("Content-Length", "2048")
-	//we must have this, else golang sets it to 'chunked' after 2nd write
-	w.Header().Set("Transfer-Encoding", "identity")
-	w.WriteHeader(200)
-
 	hj, _ := w.(http.Hijacker)
 	conn, bufrw, _ := hj.Hijack()
 	defer conn.Close()
+
+	bufrw.WriteString("HTTP/1.1 200 OK")
+	bufrw.WriteString(fmt.Sprintf("\nServer: mse6 %s", Version))
+	bufrw.WriteString("\nContent-Encoding: identity")
+	bufrw.WriteString("\nContent-Length: 2048")
+	bufrw.WriteString("\nConnection: close")
+	bufrw.WriteString("\n")
+	bufrw.WriteString("\n")
+	bufrw.Flush()
 
 	//sleep half the wait duration and send a few bytes
 	time.Sleep(waitDuration / 2)
