@@ -3,6 +3,8 @@ package mse6
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/gobwas/ws"
+	"github.com/gobwas/ws/wsutil"
 	"github.com/rs/zerolog/log"
 	"io/ioutil"
 	"net/http"
@@ -421,7 +423,7 @@ func jwksrotate(w http.ResponseWriter, r *http.Request) {
       "kid": "k1"
     }
   ]
-}`+"\n"))
+}` + "\n"))
 	} else {
 		w.Write([]byte(`{
   "keys": [
@@ -433,14 +435,14 @@ func jwksrotate(w http.ResponseWriter, r *http.Request) {
       "kid": "k2"
     }
   ]
-}`+"\n"))
+}` + "\n"))
 	}
 
 	log.Info().Msgf("served %v rotating jwks request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), 200)
 }
 
 func jwksbadrotate(w http.ResponseWriter, r *http.Request) {
-	k1:=`{
+	k1 := `{
   "keys": [
     {
       "alg":"RS256",
@@ -450,8 +452,8 @@ func jwksbadrotate(w http.ResponseWriter, r *http.Request) {
       "kid": "k1"
     }
   ]
-}`+"\n"
-	k2:=`{
+}` + "\n"
+	k2 := `{
   "keys": [
     {
       "alg":"RS256",
@@ -461,8 +463,8 @@ func jwksbadrotate(w http.ResponseWriter, r *http.Request) {
       "kid": "k2"
     }
   ]
-}`+"\n"
-	k2b:=`{
+}` + "\n"
+	k2b := `{
   "keys": [
     {
       "alg":"HS256",
@@ -472,7 +474,7 @@ func jwksbadrotate(w http.ResponseWriter, r *http.Request) {
       "kid": "k2b"
     }
   ]
-}`+"\n"
+}` + "\n"
 	k3k4 := `{
   "keys": [
     {
@@ -490,7 +492,7 @@ func jwksbadrotate(w http.ResponseWriter, r *http.Request) {
       "kid": "k4"
     }
   ]
-}`+"\n"
+}` + "\n"
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "identity")
 	w.WriteHeader(200)
@@ -498,16 +500,16 @@ func jwksbadrotate(w http.ResponseWriter, r *http.Request) {
 	if len(r.URL.Query()["rc"]) > 0 {
 		c, _ := strconv.Atoi(r.URL.Query()["rc"][0])
 		if c == 0 {
-			rc=0
+			rc = 0
 		}
 	}
 	rc++
 
-	if rc==1 {
+	if rc == 1 {
 		w.Write([]byte(k1))
-	} else if rc==2 {
+	} else if rc == 2 {
 		w.Write([]byte(k2))
-	} else if rc==3 {
+	} else if rc == 3 {
 		w.Write([]byte(k2b))
 	} else {
 		w.Write([]byte(k3k4))
@@ -589,6 +591,29 @@ func jwkses256(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msgf("served %v jwkses256 request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), 200)
 }
 
+func websocket(w http.ResponseWriter, r *http.Request) {
+	conn, _, _, err := ws.UpgradeHTTP(r, w)
+	if err != nil {
+		log.Error().Msgf("error during websocket upgrade request: %s", err)
+	}
+	//go func() {
+	defer conn.Close()
+
+	for {
+		msg, op, err := wsutil.ReadClientData(conn)
+		if err != nil {
+			// handle error
+		}
+		err = wsutil.WriteServerMessage(conn, op, []byte(fmt.Sprintf("mse6 websocket echo: %s", msg)))
+		if err != nil {
+			// handle error
+		}
+	}
+	//}()
+
+	//no http response
+}
+
 func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	waitDuration = time.Second * time.Duration(waitSeconds)
 	log.Info().Msgf("wait duration for slow requests seconds %v", waitDuration.Seconds())
@@ -625,6 +650,9 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"slowbody", slowbody)
 	http.HandleFunc(prefix+"slowheader", slowheader)
 	http.HandleFunc(prefix+"trace", trace)
+	http.HandleFunc(prefix+"websocket", websocket)
+
+	//catchall
 	http.HandleFunc("/", send404)
 
 	var err error
