@@ -599,19 +599,24 @@ func websocket(w http.ResponseWriter, r *http.Request) {
 	//go func() {
 	defer conn.Close()
 
+wsloop:
 	for {
 		msg, op, err := wsutil.ReadClientData(conn)
-		if err != nil {
-			// handle error
+		if err == nil {
+			log.Info().Msgf("success reading websocket msg from downstream: %s", msg)
+		} else {
+			log.Warn().Msgf("error reading websocket msg from downstream: %s", msg)
+			break wsloop
 		}
-		err = wsutil.WriteServerMessage(conn, op, []byte(fmt.Sprintf("mse6 websocket echo: %s", msg)))
-		if err != nil {
-			// handle error
+		echo := fmt.Sprintf("echo: %s", msg)
+		err = wsutil.WriteServerMessage(conn, op, []byte(echo))
+		if err == nil {
+			log.Info().Msgf("success writing websocket echo to downstream: %s", echo)
+		} else {
+			log.Warn().Msgf("error writing websocket echo to downstream: %s", echo)
+			break wsloop
 		}
 	}
-	//}()
-
-	//no http response
 }
 
 func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
@@ -656,15 +661,18 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc("/", send404)
 
 	var err error
+
+	server := &http.Server{
+		Addr:        fmt.Sprintf(":%d", port),
+		IdleTimeout: 180,
+	}
+
 	if tlsMode == false {
-		err = http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+		err = server.ListenAndServe()
 	} else {
 		chain, _ := getCert()
-		server := &http.Server{
-			Addr: fmt.Sprintf(":%d", port),
-			TLSConfig: &tls.Config{
-				Certificates: []tls.Certificate{chain},
-			},
+		server.TLSConfig = &tls.Config{
+			Certificates: []tls.Certificate{chain},
 		}
 		err = server.ListenAndServeTLS("", "")
 	}
