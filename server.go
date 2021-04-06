@@ -594,26 +594,34 @@ func jwkses256(w http.ResponseWriter, r *http.Request) {
 func websocket(w http.ResponseWriter, r *http.Request) {
 	conn, _, _, err := ws.UpgradeHTTP(r, w)
 	if err != nil {
-		log.Error().Msgf("error during websocket upgrade request: %s", err)
+		log.Error().Msgf("error during websocket upgrade request with X-Request-Id %s, cause: %s", getXRequestId(r), err)
+	} else {
+		log.Info().Msgf("downstream connection with remote addr %s upgraded to websocket", r.RemoteAddr)
 	}
 	//go func() {
-	defer conn.Close()
+	defer func() {
+		conn.Close()
+		log.Warn().Msg("downstream websocket connection closed")
+	}()
 
 wsloop:
 	for {
 		msg, op, err := wsutil.ReadClientData(conn)
 		if err == nil {
-			log.Info().Msgf("success reading websocket msg from downstream: %s", msg)
+			log.Info().Msgf("success reading websocket msg from downstream: %s, opcode: %v", msg, op)
+		} else if err.Error() == "EOF" {
+			log.Info().Msg("downstream hung up, EOF")
+			break wsloop
 		} else {
-			log.Warn().Msgf("error reading websocket msg from downstream: %s", msg)
+			log.Warn().Msgf("error reading websocket msg from downstream, cause: %s", err)
 			break wsloop
 		}
 		echo := fmt.Sprintf("echo: %s", msg)
 		err = wsutil.WriteServerMessage(conn, op, []byte(echo))
 		if err == nil {
-			log.Info().Msgf("success writing websocket echo to downstream: %s", echo)
+			log.Info().Msgf("success writing websocket echo to downstream: %s, opcode: %v", echo, op)
 		} else {
-			log.Warn().Msgf("error writing websocket echo to downstream: %s", echo)
+			log.Warn().Msgf("error writing websocket echo to downstream, cause: %s", err)
 			break wsloop
 		}
 	}
