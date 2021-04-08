@@ -15,7 +15,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.3.0"
+var Version = "v0.3.1"
 var Port int
 var Prefix string
 var rc = 0
@@ -26,6 +26,19 @@ func get(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the get endpoint"}`))
+		log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
+	} else {
+		send405(w, r)
+	}
+}
+
+func echoquery(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query().Encode()
+	if r.Method == "GET" {
+		w.Header().Set("Server", "mse6 "+Version)
+		w.Header().Set("Content-Encoding", "identity")
+		w.WriteHeader(200)
+		w.Write([]byte(fmt.Sprintf(`{"mse6":"Hello from the echo query endpoint. Your query string was %v"}`, q)))
 		log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 	} else {
 		send405(w, r)
@@ -592,6 +605,24 @@ func jwkses256(w http.ResponseWriter, r *http.Request) {
 }
 
 func websocket(w http.ResponseWriter, r *http.Request) {
+	var n int
+	if len(r.URL.Query()["n"]) > 0 {
+		ns := r.URL.Query()["n"][0]
+		var err error
+		n, err = strconv.Atoi(ns)
+		if err != nil {
+			n = 1
+		}
+		log.Info().Msgf("websocket echo set to %d, X-Request-Id %s", n, getXRequestId(r))
+	} else {
+		n = 1
+	}
+
+	var close bool
+	if len(r.URL.Query()["c"]) > 0 {
+		close = true
+	}
+
 	conn, _, _, err := ws.UpgradeHTTP(r, w)
 	if err != nil {
 		log.Error().Msgf("error during websocket upgrade request with X-Request-Id %s, cause: %s", getXRequestId(r), err)
@@ -599,10 +630,16 @@ func websocket(w http.ResponseWriter, r *http.Request) {
 		log.Info().Msgf("downstream connection with remote addr %s upgraded to websocket", r.RemoteAddr)
 	}
 	//go func() {
-	defer func() {
+	//this will properly close the websocket connection.
+	closer := func() {
+		writer := wsutil.NewWriter(conn, ws.StateServerSide, ws.OpText)
+		writer.Reset(conn, ws.StateServerSide, ws.OpClose)
+		writer.Write([]byte("\n"))
+		writer.Flush()
 		conn.Close()
 		log.Warn().Msg("downstream websocket connection closed")
-	}()
+	}
+	defer closer()
 
 wsloop:
 	for {
@@ -616,12 +653,17 @@ wsloop:
 			log.Warn().Msgf("error reading websocket msg from downstream, cause: %s", err)
 			break wsloop
 		}
-		echo := fmt.Sprintf("echo: %s", msg)
-		err = wsutil.WriteServerMessage(conn, op, []byte(echo))
-		if err == nil {
-			log.Info().Msgf("success writing websocket echo to downstream: %s, opcode: %v", echo, op)
-		} else {
-			log.Warn().Msgf("error writing websocket echo to downstream, cause: %s", err)
+		for i := 0; i < n; i++ {
+			echo := fmt.Sprintf("echo: %s", msg)
+			err = wsutil.WriteServerMessage(conn, op, []byte(echo))
+			if err == nil {
+				log.Info().Msgf("success writing websocket echo %d to downstream: %s, opcode: %v", i+1, echo, op)
+			} else {
+				log.Warn().Msgf("error writing websocket echo to downstream, cause: %s", err)
+				break wsloop
+			}
+		}
+		if close {
 			break wsloop
 		}
 	}
@@ -645,6 +687,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"delete", delete)
 	http.HandleFunc(prefix+"die", die)
 	http.HandleFunc(prefix+"echoheader", echoheader)
+	http.HandleFunc(prefix+"echoquery", echoquery)
 	http.HandleFunc(prefix+"jwks", jwks)
 	http.HandleFunc(prefix+"jwkses256", jwkses256)
 	http.HandleFunc(prefix+"jwksbad", jwksbad)

@@ -68,6 +68,9 @@ Kills the server process without sending a response
 `GET /mse6/echoheader`
 echoes all request headers sent on response body for testing
 
+`GET /mse6/echoquery`
+echoes all query string values sent with request on response body for testing
+
 `GET /mse6/jwksmix`
 sends a list of mixed algorithm Jwks keys
 
@@ -116,6 +119,11 @@ Alternatively configure default with -w=n on cli
 
 `TRACE /mse6/trace`
 Standard json response with status code 200 and "message/http" content type
+
+`GET /mse6/websocket?n=1&c=true`
+Upgrade the client connection to a HTTP/1.1 websocket that echoes messages sent to it.
+Specify n for how often the echo should repeat. Specify c to close the connection
+from the server side after sending all echo responses.
 
 ## Contributions
 The mse6 team welcomes all [contributors](https://github.com/simonmittag/mse6/blob/master/CONTRIBUTING.md). Everyone interacting with the project's codebase, issue trackers, chat rooms and mailing lists
