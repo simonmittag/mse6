@@ -613,7 +613,7 @@ func websocket(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			n = 1
 		}
-		log.Info().Msgf("websocket echo set to %d, X-Request-Id %s", n, getXRequestId(r))
+		log.Info().Msgf("websocket echo for connection with remote addr %s set to %d", r.RemoteAddr, n)
 	} else {
 		n = 1
 	}
@@ -625,19 +625,25 @@ func websocket(w http.ResponseWriter, r *http.Request) {
 
 	conn, _, _, err := ws.UpgradeHTTP(r, w)
 	if err != nil {
-		log.Error().Msgf("error during websocket upgrade request with X-Request-Id %s, cause: %s", getXRequestId(r), err)
+		log.Error().Msgf("error during websocket upgrade request with remote addr %s, cause: %s", r.RemoteAddr, err)
 	} else {
 		log.Info().Msgf("downstream connection with remote addr %s upgraded to websocket", r.RemoteAddr)
 	}
 
 	//this will properly close the websocket connection.
 	closer := func() {
-		writer := wsutil.NewWriter(conn, ws.StateServerSide, ws.OpText)
-		writer.Reset(conn, ws.StateServerSide, ws.OpClose)
-		writer.Write([]byte("\n"))
-		writer.Flush()
-		//conn.Close()
-		log.Warn().Msg("downstream websocket connection closed")
+		if err := ws.WriteFrame(conn, ws.NewCloseFrame(ws.NewCloseFrameBody(ws.StatusNormalClosure, "close requested"))); err != nil {
+			log.Warn().
+				Err(err).
+				Msgf("connection with remote addr %s not closed cleanly", r.RemoteAddr)
+		}
+		err2 := conn.Close()
+		if err2 != nil {
+			log.Warn().
+				Err(err2).
+				Msgf("connection with remote addr %s socket not closed", r.RemoteAddr)
+		}
+		log.Warn().Msgf("downstream websocket connection with remote addr %s closed", r.RemoteAddr)
 	}
 	defer closer()
 
@@ -654,7 +660,7 @@ wsloop:
 			break wsloop
 		}
 		for i := 0; i < n; i++ {
-			echo := fmt.Sprintf("echo: %s", msg)
+			echo := fmt.Sprintf("%s", msg)
 			err = wsutil.WriteServerMessage(conn, op, []byte(echo))
 			if err == nil {
 				log.Info().Msgf("success writing websocket echo %d to downstream: %s, opcode: %v", i+1, echo, op)
