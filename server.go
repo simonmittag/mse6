@@ -629,14 +629,14 @@ func websocket(w http.ResponseWriter, r *http.Request) {
 	} else {
 		log.Info().Msgf("downstream connection with remote addr %s upgraded to websocket", r.RemoteAddr)
 	}
-	//go func() {
+
 	//this will properly close the websocket connection.
 	closer := func() {
 		writer := wsutil.NewWriter(conn, ws.StateServerSide, ws.OpText)
 		writer.Reset(conn, ws.StateServerSide, ws.OpClose)
 		writer.Write([]byte("\n"))
 		writer.Flush()
-		conn.Close()
+		//conn.Close()
 		log.Warn().Msg("downstream websocket connection closed")
 	}
 	defer closer()
