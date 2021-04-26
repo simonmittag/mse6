@@ -618,32 +618,48 @@ func websocket(w http.ResponseWriter, r *http.Request) {
 		n = 1
 	}
 
-	var close bool
+	var close1 bool
+	var close2 bool
 	if len(r.URL.Query()["c"]) > 0 {
-		close = true
+		close1 = true
+		close2 = true
+	}
+	if len(r.URL.Query()["c1"]) > 0 {
+		close1 = true
+	}
+	if len(r.URL.Query()["c2"]) > 0 {
+		close2 = true
 	}
 
 	conn, _, _, err := ws.UpgradeHTTP(r, w)
 	if err != nil {
-		log.Error().Msgf("error during websocket upgrade request with remote addr %s, cause: %s", r.RemoteAddr, err)
+		log.Error().Msgf("error during downstream connection upgrade to websocket with remote addr %s, cause: %s", r.RemoteAddr, err)
 	} else {
 		log.Info().Msgf("downstream connection with remote addr %s upgraded to websocket", r.RemoteAddr)
 	}
 
 	//this will properly close the websocket connection.
 	closer := func() {
-		if err := ws.WriteFrame(conn, ws.NewCloseFrame(ws.NewCloseFrameBody(ws.StatusNormalClosure, "close requested"))); err != nil {
-			log.Warn().
-				Err(err).
-				Msgf("connection with remote addr %s not closed cleanly", r.RemoteAddr)
+		if close1 {
+			if err := ws.WriteFrame(conn, ws.NewCloseFrame(ws.NewCloseFrameBody(ws.StatusNormalClosure, "close requested"))); err != nil {
+				log.Warn().
+					Err(err).
+					Msgf("ws connection with remote addr %s not closed cleanly", r.RemoteAddr)
+			} else {
+				log.Info().Msgf("ws connection with remote addr %s sent close frame", r.RemoteAddr)
+			}
 		}
-		err2 := conn.Close()
-		if err2 != nil {
-			log.Warn().
-				Err(err2).
-				Msgf("connection with remote addr %s socket not closed", r.RemoteAddr)
+		if close2 {
+			err2 := conn.Close()
+			if err2 != nil {
+				log.Warn().
+					Err(err2).
+					Msgf("ws socket connection with remote addr %s not closed cleanly", r.RemoteAddr)
+			} else {
+				log.Info().Msgf("ws socket connection with remote addr %s closed", r.RemoteAddr)
+			}
 		}
-		log.Warn().Msgf("downstream websocket connection with remote addr %s closed", r.RemoteAddr)
+
 	}
 	defer closer()
 
@@ -669,7 +685,7 @@ wsloop:
 				break wsloop
 			}
 		}
-		if close {
+		if close1 || close2 {
 			break wsloop
 		}
 	}

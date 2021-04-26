@@ -120,10 +120,11 @@ Alternatively configure default with -w=n on cli
 `TRACE /mse6/trace`
 Standard json response with status code 200 and "message/http" content type
 
-`GET /mse6/websocket?n=1&c=true`
+`GET /mse6/websocket?n=1&c=true&c1=true&c2=true`
 Upgrade the client connection to a HTTP/1.1 websocket that echoes messages sent to it.
-Specify n for how often the echo should repeat. Specify c to close the connection
-from the server side after sending all echo responses.
+Specify n for how often the echo should repeat. Specify c to orderly close the connection
+from the server side after sending all echo responses. Specify c1 to only send websocket
+protocol close. Specify c2 to only hang up on TCP connection, without respecting websocket protocol.
 
 ## Contributions
 The mse6 team welcomes all [contributors](https://github.com/simonmittag/mse6/blob/master/CONTRIBUTING.md). Everyone interacting with the project's codebase, issue trackers, chat rooms and mailing lists
