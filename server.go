@@ -643,7 +643,6 @@ func websocket(w http.ResponseWriter, r *http.Request) {
 		if closeProtocol {
 			if err := ws.WriteFrame(conn, ws.NewCloseFrame(ws.NewCloseFrameBody(ws.StatusNormalClosure, "close requested"))); err != nil {
 				log.Info().
-					Err(err).
 					Msgf("ws protocol connection with remote addr %s mse6 already closed", r.RemoteAddr)
 			} else {
 				log.Info().Msgf("ws protocol connection with remote addr %s close frame sent by mse6 now", r.RemoteAddr)
@@ -653,7 +652,6 @@ func websocket(w http.ResponseWriter, r *http.Request) {
 			err2 := conn.Close()
 			if err2 != nil {
 				log.Info().
-					Err(err2).
 					Msgf("ws TCP connection with remote addr %s mse6 already closed", r.RemoteAddr)
 			} else {
 				log.Info().Msgf("ws TCP connection with remote addr %s closed by mse6 now", r.RemoteAddr)
@@ -671,12 +669,12 @@ wsloop:
 		} else if err.Error() == "EOF" {
 			log.Info().Msg("downstream hung up, EOF")
 			break wsloop
-		} else if ce, cet := err.(wsutil.ClosedError);cet {
+		} else if ce, cet := err.(wsutil.ClosedError); cet {
 			log.Info().Msgf("success. downstream requested protocol close: %s", ce)
-			closeProtocol=true
-			closeSocket=true
+			closeProtocol = true
+			closeSocket = true
 			break wsloop
-	    } else {
+		} else {
 			log.Warn().Msgf("error reading websocket msg from downstream, cause: %s", err)
 			break wsloop
 		}
