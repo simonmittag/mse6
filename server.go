@@ -15,7 +15,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.3.1"
+var Version = "v0.3.2"
 var Port int
 var Prefix string
 var rc = 0
@@ -618,17 +618,17 @@ func websocket(w http.ResponseWriter, r *http.Request) {
 		n = 1
 	}
 
-	var close1 bool
-	var close2 bool
+	var closeProtocol bool
+	var closeSocket bool
 	if len(r.URL.Query()["c"]) > 0 {
-		close1 = true
-		close2 = true
+		closeProtocol = true
+		closeSocket = true
 	}
 	if len(r.URL.Query()["c1"]) > 0 {
-		close1 = true
+		closeProtocol = true
 	}
 	if len(r.URL.Query()["c2"]) > 0 {
-		close2 = true
+		closeSocket = true
 	}
 
 	conn, _, _, err := ws.UpgradeHTTP(r, w)
@@ -640,23 +640,23 @@ func websocket(w http.ResponseWriter, r *http.Request) {
 
 	//this will properly close the websocket connection.
 	closer := func() {
-		if close1 {
+		if closeProtocol {
 			if err := ws.WriteFrame(conn, ws.NewCloseFrame(ws.NewCloseFrameBody(ws.StatusNormalClosure, "close requested"))); err != nil {
-				log.Warn().
+				log.Info().
 					Err(err).
-					Msgf("ws connection with remote addr %s not closed cleanly", r.RemoteAddr)
+					Msgf("ws protocol connection with remote addr %s mse6 already closed", r.RemoteAddr)
 			} else {
-				log.Info().Msgf("ws connection with remote addr %s sent close frame", r.RemoteAddr)
+				log.Info().Msgf("ws protocol connection with remote addr %s close frame sent by mse6 now", r.RemoteAddr)
 			}
 		}
-		if close2 {
+		if closeSocket {
 			err2 := conn.Close()
 			if err2 != nil {
-				log.Warn().
+				log.Info().
 					Err(err2).
-					Msgf("ws socket connection with remote addr %s not closed cleanly", r.RemoteAddr)
+					Msgf("ws TCP connection with remote addr %s mse6 already closed", r.RemoteAddr)
 			} else {
-				log.Info().Msgf("ws socket connection with remote addr %s closed", r.RemoteAddr)
+				log.Info().Msgf("ws TCP connection with remote addr %s closed by mse6 now", r.RemoteAddr)
 			}
 		}
 
@@ -671,7 +671,12 @@ wsloop:
 		} else if err.Error() == "EOF" {
 			log.Info().Msg("downstream hung up, EOF")
 			break wsloop
-		} else {
+		} else if ce, cet := err.(wsutil.ClosedError);cet {
+			log.Info().Msgf("success. downstream requested protocol close: %s", ce)
+			closeProtocol=true
+			closeSocket=true
+			break wsloop
+	    } else {
 			log.Warn().Msgf("error reading websocket msg from downstream, cause: %s", err)
 			break wsloop
 		}
@@ -685,7 +690,7 @@ wsloop:
 				break wsloop
 			}
 		}
-		if close1 || close2 {
+		if closeProtocol || closeSocket {
 			break wsloop
 		}
 	}
