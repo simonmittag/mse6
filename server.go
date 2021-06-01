@@ -15,7 +15,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.3.2"
+var Version = "v0.3.3"
 var Port int
 var Prefix string
 var rc = 0
@@ -246,6 +246,24 @@ func slowheader(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf(`{"mse6":"Hello from the slowheader endpoint", "waitSeconds":"%d"}`, int(wd.Seconds()))))
 
 	log.Info().Msgf("served %v request with X-Request-Id %s in %v seconds", r.URL.Path, getXRequestId(r), int(wd.Seconds()))
+}
+
+func tinyidentityf(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "identity")
+	w.WriteHeader(200)
+	w.Write([]byte(`{}`))
+
+	log.Info().Msgf("served %v tiny identity request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
+}
+
+func tinygzipf(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "gzip")
+	w.WriteHeader(200)
+	w.Write(gzipenc([]byte(`{}`)))
+
+	log.Info().Msgf("served %v tiny gzip request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 }
 
 func gzipf(w http.ResponseWriter, r *http.Request) {
@@ -731,6 +749,8 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"slowbody", slowbody)
 	http.HandleFunc(prefix+"slowheader", slowheader)
 	http.HandleFunc(prefix+"trace", trace)
+	http.HandleFunc(prefix+"tiny", tinyidentityf)
+	http.HandleFunc(prefix+"tinygzip", tinygzipf)
 	http.HandleFunc(prefix+"websocket", websocket)
 
 	//catchall

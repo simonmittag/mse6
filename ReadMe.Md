@@ -122,6 +122,13 @@ Alternatively configure default with -w=n on cli
 `TRACE /mse6/trace`
 Standard json response with status code 200 and "message/http" content type
 
+`GET /mse6/tiny`
+Tiny JSON response with content encoding identity
+
+`GET /mse6/tinygzip`
+Tiny JSON response with content encoding gzip
+
+
 `GET /mse6/websocket?n=1&c=true&c1=true&c2=true`
 Upgrade the client connection to a HTTP/1.1 websocket that echoes messages sent to it.
 Specify n for how often the echo should repeat. Specify c to orderly close the connection
