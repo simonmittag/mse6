@@ -94,11 +94,14 @@ the body otherwise sent by GET is also included in the HEAD response
 `GET /mse6/gzip`
 Sends a gzipped response with proper content encoding
 
+`GET /mse6/hangupduringheader`
+Sends a partial header only response, waits 2s, then closes the TCP connection.
+
 `GET /mse6/hangupafterheader`
-Sends a header only response, waits 2s, then closes the TCP connection.
+Sends a complete header only response message , waits 2s, then closes the TCP connection.
 
 `GET /mse6/hangupduringbody`
-Sends a headers, some of the body, waits 2s, then closes the TCP connection.
+Sends a complete header message, then some of the body, waits 2s, then closes the TCP connection.
 
 `OPTIONS /mse6/options?code=n`
 Sends a HTTP OPTIONS response as per RFC7231, section 4.3.7. Contains Allow headers and a status code.

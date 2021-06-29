@@ -15,7 +15,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.3.4"
+var Version = "v0.3.5"
 var Port int
 var Prefix string
 var rc = 0
@@ -197,6 +197,26 @@ func slowbody(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msgf("served %v request with X-Request-Id %s in %d seconds", r.URL.Path, getXRequestId(r), int(wd.Seconds()))
 }
 
+func hangupConnDuringHeadersSend(w http.ResponseWriter, r *http.Request) {
+	wd := time.Duration(time.Second * 2)
+
+	hj, _ := w.(http.Hijacker)
+	conn, bufrw, _ := hj.Hijack()
+
+	bufrw.WriteString("HTTP/1.1 200 OK")
+	bufrw.WriteString(fmt.Sprintf("\nServer: mse6 %s", Version))
+	bufrw.WriteString("\nContent-Encoding: identity")
+	bufrw.WriteString("\nContent-Length: 1024")
+	bufrw.Flush()
+
+	//sleep half the wait duration and send a few bytes
+	time.Sleep(wd)
+	bufrw.Flush()
+	conn.Close()
+
+	log.Info().Msgf("served %v incomplete request during headers send, initiated hard conn close X-Request-Id %s in %d seconds", r.URL.Path, getXRequestId(r), int(wd.Seconds()))
+}
+
 func hangupConnAfterHeadersSent(w http.ResponseWriter, r *http.Request) {
 	wd := time.Duration(time.Second * 2)
 
@@ -231,7 +251,7 @@ func hangupConnDuringBodySend(w http.ResponseWriter, r *http.Request) {
 	bufrw.WriteString("\nContent-Length: 1024")
 	bufrw.WriteString("\n")
 	bufrw.WriteString("\n")
-	bufrw.WriteString(`[{"mse6":"Hello from the slowbody endpoint"}`)
+	bufrw.WriteString(`[{"mse6":"Hello from the /hangupduringbody endpoint"}`)
 	bufrw.Flush()
 
 	//sleep half the wait duration and send a few bytes
@@ -776,6 +796,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"die", die)
 	http.HandleFunc(prefix+"echoheader", echoheader)
 	http.HandleFunc(prefix+"echoquery", echoquery)
+	http.HandleFunc(prefix+"hangupduringheader", hangupConnDuringHeadersSend)
 	http.HandleFunc(prefix+"hangupafterheader", hangupConnAfterHeadersSent)
 	http.HandleFunc(prefix+"hangupduringbody", hangupConnDuringBodySend)
 	http.HandleFunc(prefix+"jwks", jwks)
