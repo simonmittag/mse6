@@ -15,7 +15,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.3.3"
+var Version = "v0.3.4"
 var Port int
 var Prefix string
 var rc = 0
@@ -195,6 +195,51 @@ func slowbody(w http.ResponseWriter, r *http.Request) {
 	bufrw.Flush()
 
 	log.Info().Msgf("served %v request with X-Request-Id %s in %d seconds", r.URL.Path, getXRequestId(r), int(wd.Seconds()))
+}
+
+func hangupConnAfterHeadersSent(w http.ResponseWriter, r *http.Request) {
+	wd := time.Duration(time.Second * 2)
+
+	hj, _ := w.(http.Hijacker)
+	conn, bufrw, _ := hj.Hijack()
+
+	bufrw.WriteString("HTTP/1.1 200 OK")
+	bufrw.WriteString(fmt.Sprintf("\nServer: mse6 %s", Version))
+	bufrw.WriteString("\nContent-Encoding: identity")
+	bufrw.WriteString("\nContent-Length: 1024")
+	bufrw.WriteString("\n")
+	bufrw.WriteString("\n")
+	bufrw.Flush()
+
+	//sleep half the wait duration and send a few bytes
+	time.Sleep(wd)
+	bufrw.Flush()
+	conn.Close()
+
+	log.Info().Msgf("served %v incomplete request with headers sent, but no body, initiated hard conn close X-Request-Id %s in %d seconds", r.URL.Path, getXRequestId(r), int(wd.Seconds()))
+}
+
+func hangupConnDuringBodySend(w http.ResponseWriter, r *http.Request) {
+	wd := time.Duration(time.Second * 2)
+
+	hj, _ := w.(http.Hijacker)
+	conn, bufrw, _ := hj.Hijack()
+
+	bufrw.WriteString("HTTP/1.1 200 OK")
+	bufrw.WriteString(fmt.Sprintf("\nServer: mse6 %s", Version))
+	bufrw.WriteString("\nContent-Encoding: identity")
+	bufrw.WriteString("\nContent-Length: 1024")
+	bufrw.WriteString("\n")
+	bufrw.WriteString("\n")
+	bufrw.WriteString(`[{"mse6":"Hello from the slowbody endpoint"}`)
+	bufrw.Flush()
+
+	//sleep half the wait duration and send a few bytes
+	time.Sleep(wd)
+	bufrw.Flush()
+	conn.Close()
+
+	log.Info().Msgf("served %v incomplete request with partial body sent, initiated hard conn close, X-Request-Id %s in %d seconds", r.URL.Path, getXRequestId(r), int(wd.Seconds()))
 }
 
 func parseWaitDuration(r *http.Request) time.Duration {
@@ -731,6 +776,8 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"die", die)
 	http.HandleFunc(prefix+"echoheader", echoheader)
 	http.HandleFunc(prefix+"echoquery", echoquery)
+	http.HandleFunc(prefix+"hangupafterheader", hangupConnAfterHeadersSent)
+	http.HandleFunc(prefix+"hangupduringbody", hangupConnDuringBodySend)
 	http.HandleFunc(prefix+"jwks", jwks)
 	http.HandleFunc(prefix+"jwkses256", jwkses256)
 	http.HandleFunc(prefix+"jwksbad", jwksbad)
@@ -760,7 +807,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 
 	server := &http.Server{
 		Addr:        fmt.Sprintf(":%d", port),
-		IdleTimeout: 180,
+		IdleTimeout: time.Duration(450 * time.Second),
 	}
 
 	if tlsMode == false {
