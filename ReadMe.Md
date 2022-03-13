@@ -59,6 +59,9 @@ Sends invalid content length header, too large for response
 `GET /mse6/badgzip`
 Sends a response gzip content encoding header and garbled binary
 
+`GET /mse6/brotli`
+Sends a response with br content encoding header and brotli encoded binary response
+
 `GET /mse6/chunked`
 Sends a chunked HTTP/1.1 response to the client
 
