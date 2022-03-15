@@ -349,6 +349,15 @@ func brotlif(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 }
 
+func deflatef(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.Header().Set("Content-Encoding", "deflate")
+	w.WriteHeader(200)
+	w.Write(*Deflate([]byte(`{"mse6":"Hello from the deflate endpoint"}`)))
+
+	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
+}
+
 func badgzipf(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "mse6 "+Version)
 	w.Header().Set("Content-Encoding", "gzip")
@@ -803,6 +812,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"brotli", brotlif)
 	http.HandleFunc(prefix+"chunked", chunked)
 	http.HandleFunc(prefix+"delete", delete)
+	http.HandleFunc(prefix+"deflate", deflatef)
 	http.HandleFunc(prefix+"die", die)
 	http.HandleFunc(prefix+"echoheader", echoheader)
 	http.HandleFunc(prefix+"echoquery", echoquery)
