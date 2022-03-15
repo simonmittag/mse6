@@ -15,7 +15,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.3.5"
+var Version = "v0.4.0"
 var Port int
 var Prefix string
 var rc = 0
@@ -347,6 +347,20 @@ func brotlif(w http.ResponseWriter, r *http.Request) {
 	w.Write(*BrotliEncode([]byte(`{"mse6":"Hello from the brotli endpoint"}`)))
 
 	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
+}
+
+func chooseaef(w http.ResponseWriter, r *http.Request) {
+	ae := r.Header.Get("Accept-Encoding")
+	log.Info().Msgf("incoming %v request with Accept-Encoding %s and X-Request-Id %s", r.URL.Path, ae, getXRequestId(r))
+	if strings.Contains(ae, "br") {
+		brotlif(w, r)
+	} else if strings.Contains(ae, "gzip") {
+		gzipf(w, r)
+	} else if strings.Contains(ae, "deflate") {
+		deflatef(w, r)
+	} else {
+		get(w, r)
+	}
 }
 
 func deflatef(w http.ResponseWriter, r *http.Request) {
@@ -810,6 +824,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"badcontentlength", badcontentlength)
 	http.HandleFunc(prefix+"badgzip", badgzipf)
 	http.HandleFunc(prefix+"brotli", brotlif)
+	http.HandleFunc(prefix+"choose", chooseaef)
 	http.HandleFunc(prefix+"chunked", chunked)
 	http.HandleFunc(prefix+"delete", delete)
 	http.HandleFunc(prefix+"deflate", deflatef)

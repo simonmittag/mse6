@@ -62,6 +62,10 @@ Sends a response gzip content encoding header and garbled binary
 `GET /mse6/brotli`
 Sends a response with br content encoding header and brotli encoded binary response
 
+`GET /mse6/choose`
+Sends a HTTP response to the client with one of the following content encodings: `br`, `gzip`, `deflate` or `identity` 
+Content encoding preference is in above order and depends on values found in `Accept-Encoding` header found on request. 
+
 `GET /mse6/chunked`
 Sends a chunked HTTP/1.1 response to the client
 
