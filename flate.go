@@ -12,7 +12,7 @@ const flateLevel int = 1
 
 var flateEmpty = []byte{0}
 
-var flatePool = sync.Pool{
+var deflatePool = sync.Pool{
 	New: func() interface{} {
 		var buf bytes.Buffer
 		w, _ := flate.NewWriter(&buf, flateLevel)
@@ -20,7 +20,7 @@ var flatePool = sync.Pool{
 	},
 }
 
-var deflatePool = sync.Pool{
+var inflatePool = sync.Pool{
 	New: func() interface{} {
 		buf := bytes.NewBuffer(flateEmpty)
 		r := flate.NewReader(buf)
@@ -30,27 +30,27 @@ var deflatePool = sync.Pool{
 
 //Flate compress a []byte
 func Deflate(input []byte) *[]byte {
-	wrt, _ := flatePool.Get().(*flate.Writer)
+	wrt, _ := deflatePool.Get().(*flate.Writer)
 	buf := &bytes.Buffer{}
 	wrt.Reset(buf)
 
 	_, _ = wrt.Write(input)
 	_ = wrt.Close()
-	defer flatePool.Put(wrt)
+	defer deflatePool.Put(wrt)
 
 	enc := buf.Bytes()
 	return &enc
 }
 
-// Deflate a []byte
+// Inflate a []byte
 func Inflate(input []byte) *[]byte {
-	rd, _ := deflatePool.Get().(io.ReadCloser)
+	rd, _ := inflatePool.Get().(io.ReadCloser)
 	buf := bytes.NewBuffer(input)
 	_ = rd.(flate.Resetter).Reset(buf, nil)
 
 	dec, _ := ioutil.ReadAll(rd)
 	_ = rd.Close()
-	defer deflatePool.Put(rd)
+	defer inflatePool.Put(rd)
 
 	return &dec
 }
