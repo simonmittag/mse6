@@ -39,6 +39,14 @@ func nocontentenc(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 }
 
+func unknowncontentenc(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.WriteHeader(200)
+	w.Header().Set("Content-Encoding", "unknown")
+	w.Write([]byte(`{"mse6":"Hello from the unknowncontentenc endpoint"}`))
+	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
+}
+
 func echoquery(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Encode()
 	if r.Method == "GET" {
@@ -862,6 +870,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"trace", trace)
 	http.HandleFunc(prefix+"tiny", tinyidentityf)
 	http.HandleFunc(prefix+"tinygzip", tinygzipf)
+	http.HandleFunc(prefix+"unknowncontentenc", unknowncontentenc)
 	http.HandleFunc(prefix+"websocket", websocket)
 
 	//catchall

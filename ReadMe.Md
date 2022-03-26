@@ -148,6 +148,9 @@ Tiny JSON response with content encoding identity
 `GET /mse6/tinygzip`
 Tiny JSON response with content encoding gzip
 
+`GET /mse6/unknowncontentenc`
+Sends unknown content-encoding header with json response.
+
 
 `GET /mse6/websocket?n=1&c=true&c1=true&c2=true`
 Upgrade the client connection to a HTTP/1.1 websocket that echoes messages sent to it.
