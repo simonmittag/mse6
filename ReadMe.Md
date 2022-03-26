@@ -115,6 +115,9 @@ Sends a complete header message, then some of the body, waits 2s, then closes th
 Sends a HTTP OPTIONS response as per RFC7231, section 4.3.7. Contains Allow headers and a status code.
 Legal status codes are 200 and 204, the rest is undefined.
 
+`GET /mse6/nocontentenc`
+Sends a HTTP response without a content encoding header set
+
 `POST /mse6/post`
 Standard json response with status code 201
 

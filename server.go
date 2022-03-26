@@ -15,7 +15,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.4.0"
+var Version = "v0.4.1"
 var Port int
 var Prefix string
 var rc = 0
@@ -30,6 +30,13 @@ func get(w http.ResponseWriter, r *http.Request) {
 	} else {
 		send405(w, r)
 	}
+}
+
+func nocontentenc(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Server", "mse6 "+Version)
+	w.WriteHeader(200)
+	w.Write([]byte(`{"mse6":"Hello from the nocontentenc endpoint"}`))
+	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 }
 
 func echoquery(w http.ResponseWriter, r *http.Request) {
@@ -845,6 +852,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"getorhead", getorhead)
 	http.HandleFunc(prefix+"redirected", redirected)
 	http.HandleFunc(prefix+"options", options)
+	http.HandleFunc(prefix+"nocontentenc", nocontentenc)
 	http.HandleFunc(prefix+"patch", patch)
 	http.HandleFunc(prefix+"post", post)
 	http.HandleFunc(prefix+"put", put)
