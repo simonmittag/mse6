@@ -15,7 +15,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.4.2"
+var Version = "v0.4.3"
 var Port int
 var Prefix string
 var rc = 0
@@ -41,8 +41,8 @@ func nocontentenc(w http.ResponseWriter, r *http.Request) {
 
 func unknowncontentenc(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "mse6 "+Version)
-	w.WriteHeader(200)
 	w.Header().Set("Content-Encoding", "unknown")
+	w.WriteHeader(200)
 	w.Write([]byte(`{"mse6":"Hello from the unknowncontentenc endpoint"}`))
 	log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 }
