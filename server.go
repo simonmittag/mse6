@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"strconv"
 	"strings"
@@ -15,7 +16,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.4.3"
+var Version = "v0.4.4"
 var Port int
 var Prefix string
 var rc = 0
@@ -824,6 +825,62 @@ wsloop:
 	}
 }
 
+func formget(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		for k, v := range r.URL.Query() {
+			log.Info().Msgf("received GET with URL key/value: %s/%s for X-RequestID: %s", k, v[0], getXRequestId(r))
+		}
+		raw, _ := httputil.DumpRequest(r, true)
+		log.Info().Msgf("raw GET: %v for X-RequestID: %s", string(raw), getXRequestId(r))
+
+		w.WriteHeader(200)
+		w.Write([]byte(fmt.Sprintf("received GET: %s", raw)))
+	} else {
+		send405(w, r)
+	}
+}
+
+func formpost(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		if strings.Contains(r.Header.Get("Content-Type"), "application/x-www-form-urlencoded") {
+			raw, _ := httputil.DumpRequest(r, true)
+			err := r.ParseForm()
+			if err != nil {
+				log.Warn().Msgf("unable to parse form for X-RequestID: %s", getXRequestId(r))
+			}
+			for k, v := range r.Form {
+				log.Info().Msgf("received application/x-www-form-urlencoded POST with form key/value: %s/%s for X-RequestID: %s", k, v[0], getXRequestId(r))
+			}
+
+			log.Info().Msgf("raw application/x-www-form-urlencoded POST: %v for X-RequestID: %s", string(raw), getXRequestId(r))
+
+			w.WriteHeader(200)
+			w.Write([]byte(fmt.Sprintf("received post encoded as application/x-www-form-urlencoded: %s", raw)))
+		} else if strings.Contains(r.Header.Get("Content-Type"), "multipart/form-data") {
+			raw, _ := httputil.DumpRequest(r, true)
+			err := r.ParseMultipartForm(0)
+			if err != nil {
+				log.Warn().Msgf("unable to parse multipart form for X-RequestID: %s", getXRequestId(r))
+			}
+
+			for k, v := range r.Form {
+				log.Info().Msgf("received POST with multipart form key/value: %s/%s for X-RequestID: %s", k, v[0], getXRequestId(r))
+			}
+
+			log.Info().Msgf("raw multipart/form-data POST: %v for X-RequestID: %s", string(raw), getXRequestId(r))
+
+			w.WriteHeader(200)
+			w.Write([]byte(fmt.Sprintf("received post encoded as multipart/form-data: %s", raw)))
+		} else {
+			w.WriteHeader(500)
+			w.Write([]byte(fmt.Sprintf("received post with unsupported encoding as : %s", r.Header.Get("Content-Type"))))
+		}
+
+	} else {
+		send405(w, r)
+	}
+}
+
 func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	waitDuration = time.Second * time.Duration(waitSeconds)
 	log.Info().Msgf("wait duration for slow requests seconds %v", waitDuration.Seconds())
@@ -846,6 +903,8 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"die", die)
 	http.HandleFunc(prefix+"echoheader", echoheader)
 	http.HandleFunc(prefix+"echoquery", echoquery)
+	http.HandleFunc(prefix+"formget", formget)
+	http.HandleFunc(prefix+"formpost", formpost)
 	http.HandleFunc(prefix+"hangupduringheader", hangupConnDuringHeadersSend)
 	http.HandleFunc(prefix+"hangupafterheader", hangupConnAfterHeadersSent)
 	http.HandleFunc(prefix+"hangupduringbody", hangupConnDuringBodySend)
