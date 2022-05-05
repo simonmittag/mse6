@@ -85,7 +85,7 @@ echoes all query string values sent with request on response body for testing
 `GET /mse6/formget`
 simulates a form GET by echoing the raw request
 
-`GET /mse6/formpost`
+`POST /mse6/formpost`
 simulates a form POST by echoing the raw request. Supports both `Content-Type: application/x-www-form-urlencoded`
 and `Content-Type: multipart/form-data`
 
