@@ -22,20 +22,20 @@ behaviour that is otherwise difficult to observe or reproduce under test conditi
 ### Docker
 ```
 docker pull simonmittag/mse6 &&
-docker run -p8081:8081 simonmittag/mse6
+  docker run -p8081:8081 simonmittag/mse6
 ```
 
-### Osx
+### Homebrew
 ```
-brew install simonmittag/cli/mse6 &&
-mse6
+brew tap simonmittag/cli &&
+  brew install mse6 &&
+  mse6
 ```
 
 ### Golang
 ```bash
-go get github.com/simonmittag/mse6 && 
 go install github.com/simonmittag/mse6/cmd/mse6 && 
-mse6
+  mse6
 ```
 
 ## Usage
