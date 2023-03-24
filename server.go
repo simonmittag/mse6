@@ -33,6 +33,18 @@ func get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func connect(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "CONNECT" {
+		w.Header().Set("Server", "mse6 "+Version)
+		w.Header().Set("Content-Encoding", "identity")
+		w.WriteHeader(200)
+		w.Write([]byte(`{"mse6":"Hello from the connect endpoint"}`))
+		log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
+	} else {
+		send405(w, r)
+	}
+}
+
 func nocontentenc(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "mse6 "+Version)
 	w.WriteHeader(200)
@@ -896,6 +908,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"badcontentlength", badcontentlength)
 	http.HandleFunc(prefix+"badgzip", badgzipf)
 	http.HandleFunc(prefix+"brotli", brotlif)
+	http.HandleFunc(prefix+"connect", connect)
 	http.HandleFunc(prefix+"choose", chooseaef)
 	http.HandleFunc(prefix+"chunked", chunked)
 	http.HandleFunc(prefix+"delete", delete)

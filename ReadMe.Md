@@ -63,6 +63,9 @@ Sends a response gzip content encoding header and garbled binary
 `GET /mse6/brotli`
 Sends a response with br content encoding header and brotli encoded binary response
 
+`CONNECT /mse6/connect`
+Sends a HTTP 200 OK response to the HTTP connect method. Has no bearing on network connection other than standard keepalive.
+
 `GET /mse6/choose`
 Sends a HTTP response to the client with one of the following content encodings: `br`, `gzip`, `deflate` or `identity` 
 Content encoding preference is in above order and depends on values found in `Accept-Encoding` header found on request. 
