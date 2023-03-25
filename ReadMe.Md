@@ -63,8 +63,9 @@ Sends a response gzip content encoding header and garbled binary
 `GET /mse6/brotli`
 Sends a response with br content encoding header and brotli encoded binary response
 
-`CONNECT /mse6/connect`
+`CONNECT /mse6/connect?body=true`
 Sends a HTTP 200 OK response to the HTTP connect method. Has no bearing on network connection other than standard keepalive.
+Will send (illegal) body if body=true
 
 `GET /mse6/choose`
 Sends a HTTP response to the client with one of the following content encodings: `br`, `gzip`, `deflate` or `identity` 
@@ -122,9 +123,9 @@ Sends a complete header only response message , waits 2s, then closes the TCP co
 `GET /mse6/hangupduringbody`
 Sends a complete header message, then some of the body, waits 2s, then closes the TCP connection.
 
-`OPTIONS /mse6/options?code=n`
+`OPTIONS /mse6/options?code=n&body=true`
 Sends a HTTP OPTIONS response as per RFC7231, section 4.3.7. Contains Allow headers and a status code.
-Legal status codes are 200 and 204, the rest is undefined.
+Legal status codes are 200 and 204, the rest is undefined. Will send (illegal) body if body=true
 
 `GET /mse6/nocontentenc`
 Sends a HTTP response without a content encoding header set
@@ -151,7 +152,8 @@ Sends body after initial lag of n/2s, then sends remaining body without chunking
 Alternatively configure default with -w=n on cli
 
 `TRACE /mse6/trace`
-Standard json response with status code 200 and "message/http" content type
+Standard json response with status code 200 and "message/http" content type.
+Sends boilerplate trace response in body, not actual request echo.
 
 `GET /mse6/tiny`
 Tiny JSON response with content encoding identity

@@ -16,10 +16,60 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.4.5"
+var Version = "v0.4.6"
 var Port int
 var Prefix string
 var rc = 0
+
+func connect(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "CONNECT" {
+		w.Header().Set("Server", "mse6 "+Version)
+		w.WriteHeader(200)
+		log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
+		if len(r.URL.Query()["body"]) > 0 {
+			w.Write([]byte(`{"mse6":"Hello from the connect endpoint"}`))
+		}
+	} else {
+		send405(w, r)
+	}
+}
+
+func options(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "OPTIONS" {
+		code := 0
+		if len(r.URL.Query()["code"]) > 0 {
+			code, _ = strconv.Atoi(r.URL.Query()["code"][0])
+		} else {
+			code = 200
+		}
+		w.Header().Add("Allow", "OPTIONS")
+		w.Header().Add("Allow", "GET")
+		w.Header().Set("Server", "mse6 "+Version)
+		w.WriteHeader(code)
+		if len(r.URL.Query()["body"]) > 0 {
+			w.Write([]byte(`{"mse6":"Hello from the options endpoint"}`))
+		}
+
+		log.Info().Msgf("served %v OPTIONS request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), code)
+	} else {
+		send405(w, r)
+	}
+}
+
+func trace(w http.ResponseWriter, r *http.Request) {
+	body, _ := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	if r.Method == "TRACE" {
+		w.Header().Set("Server", "mse6 "+Version)
+		w.Header().Set("Content-Type", "message/http")
+		w.Header().Set("Content-Length", "0")
+		w.WriteHeader(200)
+		w.Write([]byte(`{"mse6":"Hello from the trace endpoint"}`))
+		log.Info().Msgf("served %v delete trace with X-Request-Id %s,%s reading %d bytes from inbound", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
+	} else {
+		send405(w, r)
+	}
+}
 
 func get(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
@@ -27,18 +77,6 @@ func get(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the get endpoint"}`))
-		log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
-	} else {
-		send405(w, r)
-	}
-}
-
-func connect(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "CONNECT" {
-		w.Header().Set("Server", "mse6 "+Version)
-		w.Header().Set("Content-Encoding", "identity")
-		w.WriteHeader(200)
-		w.Write([]byte(`{"mse6":"Hello from the connect endpoint"}`))
 		log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 	} else {
 		send405(w, r)
@@ -147,20 +185,6 @@ func delete(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Server", "mse6 "+Version)
 		w.WriteHeader(204)
 		log.Info().Msgf("served %v delete request with X-Request-Id %s,%s reading %d bytes from inbound", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
-	} else {
-		send405(w, r)
-	}
-}
-
-func trace(w http.ResponseWriter, r *http.Request) {
-	body, _ := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()
-	if r.Method == "TRACE" {
-		w.Header().Set("Server", "mse6 "+Version)
-		w.Header().Set("Content-Type", "message/http")
-		w.Header().Set("Content-Length", "0")
-		w.WriteHeader(200)
-		log.Info().Msgf("served %v delete trace with X-Request-Id %s,%s reading %d bytes from inbound", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
 	} else {
 		send405(w, r)
 	}
@@ -428,27 +452,6 @@ func send405(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"mse6":"405"}`))
 
 	log.Info().Msgf("served %v request with X-Request-Id %s response code 405", r.URL.Path, getXRequestId(r))
-}
-
-func options(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "OPTIONS" {
-		code := 0
-		if len(r.URL.Query()["code"]) > 0 {
-			code, _ = strconv.Atoi(r.URL.Query()["code"][0])
-		} else {
-			code = 200
-		}
-		w.Header().Add("Allow", "OPTIONS")
-		w.Header().Add("Allow", "GET")
-		w.Header().Set("Content-Length", "0")
-		w.Header().Set("Server", "mse6 "+Version)
-		w.Header().Set("Content-Encoding", "identity")
-		w.WriteHeader(code)
-
-		log.Info().Msgf("served %v OPTIONS request with X-Request-Id %s code %d", r.URL.Path, getXRequestId(r), code)
-	} else {
-		send405(w, r)
-	}
 }
 
 func getorhead(w http.ResponseWriter, r *http.Request) {
