@@ -16,7 +16,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.4.6"
+var Version = "v0.4.7"
 var Port int
 var Prefix string
 var rc = 0
@@ -62,10 +62,9 @@ func trace(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "TRACE" {
 		w.Header().Set("Server", "mse6 "+Version)
 		w.Header().Set("Content-Type", "message/http")
-		w.Header().Set("Content-Length", "0")
 		w.WriteHeader(200)
 		w.Write([]byte(`{"mse6":"Hello from the trace endpoint"}`))
-		log.Info().Msgf("served %v delete trace with X-Request-Id %s,%s reading %d bytes from inbound", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
+		log.Info().Msgf("served %v trace with X-Request-Id %s,%s reading %d bytes from inbound", r.URL.Path, getXRequestId(r), expectContinue(r), len(body))
 	} else {
 		send405(w, r)
 	}
