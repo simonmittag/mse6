@@ -16,7 +16,7 @@ behaviour that is otherwise difficult to observe or reproduce under test conditi
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Docker Pulls](https://img.shields.io/docker/pulls/simonmittag/mse6)](https://img.shields.io/docker/pulls/simonmittag/mse6)
 [![Docker Image Size](https://img.shields.io/docker/image-size/simonmittag/mse6?sort=date)](https://img.shields.io/docker/image-size/simonmittag/mse6?sort=date)
-[![Version](https://img.shields.io/badge/version-0.4.7-orange)](https://github.com/simonmittag/mse6/releases/tag/v0.4.7)
+[![Version](https://img.shields.io/badge/version-0.4.8-orange)](https://github.com/simonmittag/mse6/releases/tag/v0.4.8)
 
 ## Up and running
 ### Docker
@@ -85,6 +85,9 @@ echoes all request headers sent on response body for testing
 
 `GET /mse6/echoquery`
 echoes all query string values sent with request on response body for testing
+
+`GET /mse6/echoport`
+sends a response with the http port the server is listening on
 
 `GET /mse6/formget`
 simulates a form GET by echoing the raw request

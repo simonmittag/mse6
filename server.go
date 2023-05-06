@@ -16,7 +16,7 @@ import (
 )
 
 var waitDuration time.Duration
-var Version = "v0.4.7"
+var Version = "v0.4.8"
 var Port int
 var Prefix string
 var rc = 0
@@ -104,6 +104,18 @@ func echoquery(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Encoding", "identity")
 		w.WriteHeader(200)
 		w.Write([]byte(fmt.Sprintf(`{"mse6":"Hello from the echo query endpoint. Your query string was %v"}`, q)))
+		log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
+	} else {
+		send405(w, r)
+	}
+}
+
+func echoport(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		w.Header().Set("Server", "mse6 "+Version)
+		w.Header().Set("Content-Encoding", "identity")
+		w.WriteHeader(200)
+		w.Write([]byte(fmt.Sprintf(`{"mse6":"Hello from the echo port endpoint. My port is %v"}`, Port)))
 		log.Info().Msgf("served %v request with X-Request-Id %s", r.URL.Path, getXRequestId(r))
 	} else {
 		send405(w, r)
