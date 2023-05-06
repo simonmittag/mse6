@@ -930,6 +930,7 @@ func Bootstrap(port int, waitSeconds float64, prefix string, tlsMode bool) {
 	http.HandleFunc(prefix+"die", die)
 	http.HandleFunc(prefix+"echoheader", echoheader)
 	http.HandleFunc(prefix+"echoquery", echoquery)
+	http.HandleFunc(prefix+"echoport", echoport)
 	http.HandleFunc(prefix+"formget", formget)
 	http.HandleFunc(prefix+"formpost", formpost)
 	http.HandleFunc(prefix+"hangupduringheader", hangupConnDuringHeadersSend)
