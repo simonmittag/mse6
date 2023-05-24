@@ -17,6 +17,7 @@ const (
 	Server Mode = 1 << iota
 	Test
 	Version
+	Usage
 )
 
 var pattern = "/mse6/"
@@ -29,7 +30,9 @@ func main() {
 	waitSecs := flag.Int("w", 3, "wait time for server to respond in seconds")
 	tlsMode := flag.Bool("s", false, "self signed tls mode")
 	tM := flag.Bool("t", false, "server self test")
+	h := flag.Bool("h", false, "print usage instructions")
 	vM := flag.Bool("v", false, "print the server version")
+	flag.Usage = printUsage
 	flag.Parse()
 
 	pattern = parsePrefix(*u)
@@ -40,6 +43,9 @@ func main() {
 	if *vM {
 		mode = Version
 	}
+	if *h {
+		mode = Usage
+	}
 
 	switch mode {
 	case Server:
@@ -48,6 +54,8 @@ func main() {
 		printSelftest(*port)
 	case Version:
 		printVersion()
+	case Usage:
+		printUsage()
 	}
 }
 
@@ -69,14 +77,17 @@ func parsePrefix(s string) string {
 
 func printVersion() {
 	fmt.Printf("mse6 %s\n", mse6.Version)
-	os.Exit(0)
+}
+
+func printUsage() {
+	printVersion()
+	flag.PrintDefaults()
 }
 
 func printSelftest(port int) {
 	_, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err == nil {
 		log.Info().Msgf("mse6 %s self test pass. port %d available", mse6.Version, port)
-		os.Exit(0)
 	} else {
 		log.Error().Msgf("mse6 %s self test fail. port %d unavailable", mse6.Version, port)
 		os.Exit(1)
