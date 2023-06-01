@@ -37,12 +37,26 @@ func TestHandlers(t *testing.T) {
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/hangupafterheader", Handler: hangupConnAfterHeadersSent}, false, true, 0},
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/hangupduringbody", Handler: hangupConnDuringBodySend}, false, true, 0},
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/jwks", Handler: jwks}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/jwksbad", Handler: jwksbad}, false, false, 200},
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/jwksmix", Handler: jwksmix}, false, false, 200},
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/jwkses256", Handler: jwkses256}, false, false, 200},
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/jwksrotate", Handler: jwksrotate}, false, false, 200},
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/jwksbadrotate", Handler: jwksbadrotate}, false, false, 200},
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/nocontentenc", Handler: nocontentenc}, false, false, 200},
 		{ServerHandler{Methods: []string{"OPTIONS"}, Pattern: Prefix + "/options", Handler: options}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/options?code=204", Handler: options}, false, false, 405},
+		{ServerHandler{Methods: []string{"PATCH"}, Pattern: Prefix + "/patch", Handler: patch}, false, false, 200},
+		{ServerHandler{Methods: []string{"POST"}, Pattern: Prefix + "/post", Handler: post}, false, false, 201},
+		{ServerHandler{Methods: []string{"PUT"}, Pattern: Prefix + "/put", Handler: put}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/send", Handler: send}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/slowheader", Handler: slowheader}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/slowbody", Handler: slowbody}, false, false, 200},
+		{ServerHandler{Methods: []string{"TRACE"}, Pattern: Prefix + "/trace", Handler: trace}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/tiny", Handler: tinyidentityf}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/tinygzip", Handler: tinygzipf}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/unknowncontentenc", Handler: unknowncontentenc}, false, false, 200},
+		//bad websocket upgrade
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/websocket", Handler: websocket}, false, false, 400},
 	}
 
 	for _, tt := range tests {
