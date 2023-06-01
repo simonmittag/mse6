@@ -17,6 +17,8 @@ func TestHandlers(t *testing.T) {
 		responseBodyError bool
 		responseCode      int
 	}{
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/", Handler: index}, false, true, 200},
+
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/badcontentlength", Handler: badcontentlength}, false, true, 200},
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/badgzip", Handler: badgzipf}, false, true, 200},
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/brotli", Handler: brotlif}, false, false, 200},
