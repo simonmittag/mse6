@@ -10,7 +10,7 @@ import (
 
 const waitDuration = time.Second * 3
 
-var Version = "v0.4.9"
+var Version = "v0.5.0"
 var Port int
 var Prefix string
 var rc = 0
