@@ -38,6 +38,7 @@ func TestParsePrefix(t *testing.T) {
 }
 
 func TestMainFunc(t *testing.T) {
+	os.Setenv("LOGCOLOR", "TRUE")
 	os.Args = append([]string{"-v"}, "-v")
 	main()
 }
