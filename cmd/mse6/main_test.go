@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"testing"
 )
 
@@ -36,7 +37,12 @@ func TestParsePrefix(t *testing.T) {
 	}
 }
 
-//tests below only need to execute to work out
+func TestMainFunc(t *testing.T) {
+	os.Args = append([]string{"-v"}, "-v")
+	main()
+}
+
+// tests below only need to execute to work out
 func TestPrintVersion(t *testing.T) {
 	printVersion()
 }
