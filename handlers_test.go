@@ -34,6 +34,15 @@ func TestHandlers(t *testing.T) {
 		{ServerHandler{Methods: []string{"GET", "HEAD"}, Pattern: Prefix + "/getorhead", Handler: getorhead}, false, false, 200},
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/gzip", Handler: gzipf}, false, false, 200},
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/hangupduringheader", Handler: hangupConnDuringHeadersSend}, false, true, 0},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/hangupafterheader", Handler: hangupConnAfterHeadersSent}, false, true, 0},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/hangupduringbody", Handler: hangupConnDuringBodySend}, false, true, 0},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/jwks", Handler: jwks}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/jwksmix", Handler: jwksmix}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/jwkses256", Handler: jwkses256}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/jwksrotate", Handler: jwksrotate}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/jwksbadrotate", Handler: jwksbadrotate}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/nocontentenc", Handler: nocontentenc}, false, false, 200},
+		{ServerHandler{Methods: []string{"OPTIONS"}, Pattern: Prefix + "/options", Handler: options}, false, false, 200},
 	}
 
 	for _, tt := range tests {
