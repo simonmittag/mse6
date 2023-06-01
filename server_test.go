@@ -11,7 +11,7 @@ import (
 )
 
 func TestHttpClientSocketTimeout(t *testing.T) {
-	go Bootstrap(65534, 1, "/mse6/", false)
+	go Bootstrap(65534, "/mse6/", false)
 }
 
 func TestGetResponds(t *testing.T) {
@@ -191,7 +191,6 @@ func TestPostResponds(t *testing.T) {
 }
 
 func TestBadContentLengthResponds(t *testing.T) {
-	waitDuration = 3
 	srv := httptest.NewServer(http.HandlerFunc(badcontentlength))
 	defer srv.Close()
 
@@ -218,7 +217,7 @@ func TestBadContentLengthResponds(t *testing.T) {
 
 func TestSlowHeaderResponds(t *testing.T) {
 	//TODO: will not test the delay only the response because of httptest?
-	waitDuration = 3
+
 	srv := httptest.NewServer(http.HandlerFunc(slowheader))
 	defer srv.Close()
 
@@ -250,7 +249,7 @@ func TestSlowHeaderResponds(t *testing.T) {
 
 func TestGzipResponds(t *testing.T) {
 	//TODO: will not test the delay only the response because of httptest?
-	waitDuration = 3
+
 	srv := httptest.NewServer(http.HandlerFunc(gzipf))
 	defer srv.Close()
 
@@ -375,4 +374,3 @@ func TestOptionsResponds(t *testing.T) {
 		t.Errorf("response should allow OPTIONS but got %v", ce)
 	}
 }
-

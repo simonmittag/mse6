@@ -76,8 +76,8 @@ Sends a chunked HTTP/1.1 response to the client
 `DELETE /mse6/delete`
 Standard json response with status code 204
 
-`GET /mse6/die`
-Kills the server process without sending a response
+`GET /mse6/deflate`
+sends a deflate encoded response
 
 `GET /mse6/echoheader`
 echoes all request headers sent on response body for testing
@@ -94,15 +94,6 @@ simulates a form GET by echoing the raw request
 `POST /mse6/formpost`
 simulates a form POST by echoing the raw request. Supports both `Content-Type: application/x-www-form-urlencoded`
 and `Content-Type: multipart/form-data`
-
-`GET /mse6/jwksmix`
-sends a list of mixed algorithm Jwks keys
-
-`GET /mse6/jwksbad`
-sends illegally formatted Jwks key
-
-`GET /mse6/jwksbadrotate?rc=0`
-sends a rotating Jwks key that alternates every request. Sends malformed keys. Reset good behaviour with rc=0
 
 `GET /mse6/get`
 Standard json response with status code 200
@@ -125,18 +116,36 @@ Sends a complete header only response message , waits 2s, then closes the TCP co
 `GET /mse6/hangupduringbody`
 Sends a complete header message, then some of the body, waits 2s, then closes the TCP connection.
 
-`OPTIONS /mse6/options?code=n&body=true`
-Sends a HTTP OPTIONS response as per RFC7231, section 4.3.7. Contains Allow headers and a status code.
-Legal status codes are 200 and 204, the rest is undefined. Will send (illegal) body if body=true
+`GET /mse6/jwks`
+sends a list of RS256 Jwks keys
+
+`GET /mse6/jwksmix`
+sends a list of mixed algorithm Jwks keys
+
+`GET /mse6/jwkses256`
+sends a JWKS key of type ES256
+
+`GET /mse6/jwksbad`
+sends illegally formatted Jwks key
+
+`GET /mse6/jwksrotate`
+sends a rotating Jwks keys that change arbitrarily.
+
+`GET /mse6/jwksbadrotate?rc=0`
+sends a rotating Jwks key that alternates every request. Sends malformed keys. Stateful method, reset good behaviour with rc=0
 
 `GET /mse6/nocontentenc`
 Sends a HTTP response without a content encoding header set
 
-`POST /mse6/post`
-Standard json response with status code 201
+`OPTIONS /mse6/options?code=n&body=true`
+Sends a HTTP OPTIONS response as per RFC7231, section 4.3.7. Contains Allow headers and a status code.
+Legal status codes are 200 and 204, the rest is undefined. Will send (illegal) body if body=true
 
 `PATCH /mse6/patch`
 Standard json response with status code 200
+
+`POST /mse6/post`
+Standard json response with status code 201
 
 `PUT /mse6/put`
 Standard json response with status code 200
