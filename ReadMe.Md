@@ -48,8 +48,6 @@ go install github.com/simonmittag/mse6/cmd/mse6 &&
     -u string
     	the path prefix (default "/mse6/")
     -v	print the server version
-    -w int
-      	wait time for server to respond in seconds (default 3)
 ```
 
 ## Routes
