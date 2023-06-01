@@ -10,7 +10,7 @@ import (
 
 const waitDuration = time.Second * 3
 
-var Version = "v0.5.0"
+var Version = "v0.5.1"
 var Port int
 var Prefix string
 var rc = 0
@@ -25,14 +25,14 @@ type ServerHandler struct {
 
 var handlers []ServerHandler
 
-func addHandlerFunc(methods []string, pattern string, handlerFunc http.HandlerFunc) {
+func addHandlerFunc(methods []string, pattern string, f http.HandlerFunc) {
 	h := ServerHandler{
 		Methods: methods,
 		Pattern: Prefix + pattern,
-		Handler: handlerFunc,
+		Handler: f,
 	}
 	handlers = append(handlers, h)
-	http.HandleFunc(pattern, handlerFunc)
+	http.HandleFunc(h.Pattern, f)
 }
 
 func Bootstrap(port int, prefix string, tlsMode bool) {
@@ -84,7 +84,7 @@ func Bootstrap(port int, prefix string, tlsMode bool) {
 	addHandlerFunc([]string{"GET"}, "unknowncontentenc", unknowncontentenc)
 	addHandlerFunc([]string{"GET"}, "websocket", websocket)
 
-	//catchall
+	//catchall. Matches everything that wasn't previously matched.
 	http.HandleFunc("/", index)
 
 	var err error

@@ -15,7 +15,7 @@ that are otherwise difficult to consistently reproduce under test conditions.
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Docker Pulls](https://img.shields.io/docker/pulls/simonmittag/mse6)](https://img.shields.io/docker/pulls/simonmittag/mse6)
 [![Docker Image Size](https://img.shields.io/docker/image-size/simonmittag/mse6?sort=date)](https://img.shields.io/docker/image-size/simonmittag/mse6?sort=date)
-[![Version](https://img.shields.io/badge/version-0.5.0-orange)](https://github.com/simonmittag/mse6/releases/tag/v0.5.0)
+[![Version](https://img.shields.io/badge/version-0.5.1-orange)](https://github.com/simonmittag/mse6/releases/tag/v0.5.1)
 
 ## Up and running
 ### Docker
