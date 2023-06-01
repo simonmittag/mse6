@@ -53,6 +53,10 @@ func TestPrintSelfTest(t *testing.T) {
 	printSelftest(61234)
 }
 
+func TestPrintUsage(t *testing.T) {
+	printUsage()
+}
+
 func TestInitLogger(t *testing.T) {
 	initLogger()
 }
