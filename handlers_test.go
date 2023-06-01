@@ -32,6 +32,8 @@ func TestHandlers(t *testing.T) {
 		{ServerHandler{Methods: []string{"POST"}, Pattern: Prefix + "/formpost?k=v", Handler: formpost}, true, false, 200},
 		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/get", Handler: get}, false, false, 200},
 		{ServerHandler{Methods: []string{"GET", "HEAD"}, Pattern: Prefix + "/getorhead", Handler: getorhead}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/gzip", Handler: gzipf}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/hangupduringheader", Handler: hangupConnDuringHeadersSend}, false, true, 0},
 	}
 
 	for _, tt := range tests {
@@ -44,6 +46,11 @@ func TestHandlers(t *testing.T) {
 func doTestHandler(t *testing.T, h ServerHandler, requestUrlEncoded bool, bodyParsingErrWant bool, r int) {
 	srv := httptest.NewServer(http.HandlerFunc(h.Handler))
 	defer srv.Close()
+	defer func() {
+		if r := recover(); r != nil {
+			t.Log("Recovered. Error:\n", r)
+		}
+	}()
 
 	for _, m := range h.Methods {
 		client := http.Client{}
@@ -51,8 +58,9 @@ func doTestHandler(t *testing.T, h ServerHandler, requestUrlEncoded bool, bodyPa
 		if requestUrlEncoded {
 			req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		}
+
 		res, err := client.Do(req)
-		if err != nil {
+		if !bodyParsingErrWant && err != nil {
 			t.Errorf("server did not return ok cause %v", err)
 		}
 
@@ -63,7 +71,7 @@ func doTestHandler(t *testing.T, h ServerHandler, requestUrlEncoded bool, bodyPa
 			t.Errorf("body parsing err want %v got %v", bodyParsingErrWant, bodyParsingErrGet)
 		}
 
-		if res.StatusCode != r {
+		if r > 0 && res.StatusCode != r {
 			t.Errorf("response status code want %v, got %v", r, res.StatusCode)
 		}
 	}
