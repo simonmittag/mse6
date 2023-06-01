@@ -12,37 +12,45 @@ import (
 
 func TestHandlers(t *testing.T) {
 	tests := []struct {
-		h ServerHandler
-		b bool
-		r int
+		h                 ServerHandler
+		requestUrlEncoded bool
+		responseBodyError bool
+		responseCode      int
 	}{
-		{h: ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/badcontentlength", Handler: badcontentlength}, b: true, r: 200},
-		{h: ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/badgzip", Handler: badgzipf}, b: true, r: 200},
-		{h: ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/brotli", Handler: brotlif}, b: false, r: 200},
-		{h: ServerHandler{Methods: []string{"CONNECT"}, Pattern: Prefix + "/connect", Handler: connect}, b: false, r: 200},
-		{h: ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/choose", Handler: chooseaef}, b: false, r: 200},
-		{h: ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/chunked", Handler: chunked}, b: false, r: 200},
-		{h: ServerHandler{Methods: []string{"DELETE"}, Pattern: Prefix + "/delete", Handler: delete}, b: false, r: 204},
-		{h: ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/deflate", Handler: deflatef}, b: false, r: 200},
-		{h: ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/echoheader", Handler: echoheader}, b: false, r: 200},
-		{h: ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/echoquery", Handler: echoquery}, b: false, r: 200},
-		{h: ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/echoport", Handler: echoport}, b: false, r: 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/badcontentlength", Handler: badcontentlength}, false, true, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/badgzip", Handler: badgzipf}, false, true, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/brotli", Handler: brotlif}, false, false, 200},
+		{ServerHandler{Methods: []string{"CONNECT"}, Pattern: Prefix + "/connect", Handler: connect}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/choose", Handler: chooseaef}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/chunked", Handler: chunked}, false, false, 200},
+		{ServerHandler{Methods: []string{"DELETE"}, Pattern: Prefix + "/delete", Handler: delete}, false, false, 204},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/deflate", Handler: deflatef}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/echoheader", Handler: echoheader}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/echoquery", Handler: echoquery}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/echoport", Handler: echoport}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/formget", Handler: formget}, false, false, 200},
+		{ServerHandler{Methods: []string{"POST"}, Pattern: Prefix + "/formpost?k=v", Handler: formpost}, true, false, 200},
+		{ServerHandler{Methods: []string{"GET"}, Pattern: Prefix + "/get", Handler: get}, false, false, 200},
+		{ServerHandler{Methods: []string{"GET", "HEAD"}, Pattern: Prefix + "/getorhead", Handler: getorhead}, false, false, 200},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.h.Pattern, func(t *testing.T) {
-			doTestHandler(t, tt.h, tt.b, tt.r)
+			doTestHandler(t, tt.h, tt.requestUrlEncoded, tt.responseBodyError, tt.responseCode)
 		})
 	}
 }
 
-func doTestHandler(t *testing.T, h ServerHandler, bodyParsingErrWant bool, r int) {
+func doTestHandler(t *testing.T, h ServerHandler, requestUrlEncoded bool, bodyParsingErrWant bool, r int) {
 	srv := httptest.NewServer(http.HandlerFunc(h.Handler))
 	defer srv.Close()
 
 	for _, m := range h.Methods {
 		client := http.Client{}
 		req, _ := http.NewRequest(m, srv.URL, nil)
+		if requestUrlEncoded {
+			req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		}
 		res, err := client.Do(req)
 		if err != nil {
 			t.Errorf("server did not return ok cause %v", err)
