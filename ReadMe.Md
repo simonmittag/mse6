@@ -20,6 +20,10 @@ that are otherwise difficult to consistently reproduce under test conditions.
 ## Try It Live
 ```
 curl http://www.mse6.io/
+mse6 v0.5.1
+[GET] /badcontentlength
+[GET] /badgzip
+[GET] /brotli
 ...
 ```
 
