@@ -17,6 +17,12 @@ that are otherwise difficult to consistently reproduce under test conditions.
 [![Docker Image Size](https://img.shields.io/docker/image-size/simonmittag/mse6?sort=date)](https://img.shields.io/docker/image-size/simonmittag/mse6?sort=date)
 [![Version](https://img.shields.io/badge/version-0.5.1-orange)](https://github.com/simonmittag/mse6/releases/tag/v0.5.1)
 
+## Try It Live
+```
+curl http://www.mse6.io/
+...
+```
+
 ## Up and running
 ### Docker
 ```
